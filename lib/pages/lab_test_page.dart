@@ -11,27 +11,41 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:js' as js;
+
+import '../main.dart';
+
+void playAudio(String path) {
+  js.context.callMethod('playAudio', [path]);
+// not on the web so we must use a mobile/desktop library...
+}
 
 class LabTestPage extends StatelessWidget {
   static const String testRoute = '/AX-CPT/test';
 
   @override
   Widget build(BuildContext context) {
+    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: new CommonPageBgWidget(
-                content:
-                    new LabTestPageContentWidget())) // This trailing comma makes auto-formatting nicer for build methods.
+                content: new LabTestPageContentWidget(
+                    test:
+                        test))) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
 
 class LabTestPageContentWidget extends StatefulWidget {
+  Test test;
+
+  LabTestPageContentWidget({this.test});
+
   @override
   State<StatefulWidget> createState() {
-    return new _LabTestPageContentWidgetState();
+    return new _LabTestPageContentWidgetState(test);
   }
 }
 
@@ -50,7 +64,30 @@ class LetterShowEvent {
 }
 
 class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
-  var letters = RandomLettersGenUtil.genRandomLetters();
+  Test test;
+  String firstSpecialLetter;
+  String secondSpecialLetter;
+  List<String> letters;
+
+  _LabTestPageContentWidgetState(Test test) {
+    this.test = test;
+    if (test.testType == Test.TEST_ATTENTION_AUDIO) {
+      firstSpecialLetter = "T";
+      secondSpecialLetter = "S";
+      letters = RandomLettersGenUtil.genRandomLetters(
+          ["B", "C", "E", "F", "G", "M", "P", "V", "X"],
+          firstSpecialLetter,
+          secondSpecialLetter);
+    } else {
+      firstSpecialLetter = "A";
+      secondSpecialLetter = "X";
+      letters = RandomLettersGenUtil.genRandomLetters(
+          ["E", "F", "H", "L", "N", "T", "V", "Y", "Z"],
+          firstSpecialLetter,
+          secondSpecialLetter);
+    }
+  }
+
   var showLetterEventList = new List<LetterShowEvent>();
   var isFirstIn = true;
   var isShowLetter = false;
@@ -71,8 +108,10 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
 
   void _initTime() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    var textShowTimeStr = preferences.getString("textShowTime");
-    var textHideTimeStr = preferences.getString("textHideTime");
+    var textShowTimeStr =
+        preferences.getString("textShowTime_${test.testType}");
+    var textHideTimeStr =
+        preferences.getString("textHideTime_${test.testType}");
     if (textShowTimeStr != null && textShowTimeStr != "") {
       _textShowTime = int.parse(textShowTimeStr);
     }
@@ -89,7 +128,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     });
     if (prepareCount > 0) {
       new Timer(new Duration(milliseconds: 1000), _prepareTest);
-    }else{
+    } else {
       isFlushPrepare = false;
       _hideText();
     }
@@ -136,8 +175,8 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
 
   void _handleLetterEventList() {
     for (int i = 0; i < showLetterEventList.length - 1; i++) {
-      if (showLetterEventList[i].letter == "A" &&
-          showLetterEventList[i + 1].letter == "X") {
+      if (showLetterEventList[i].letter == firstSpecialLetter &&
+          showLetterEventList[i + 1].letter == secondSpecialLetter) {
         showLetterEventList[i + 1].rightResult = "TRUE_1";
         if (showLetterEventList[i + 1].action == "blankspace") {
           showLetterEventList[i + 1].userResult = "TRUE_1";
@@ -147,9 +186,9 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       }
       if (i > 0) {
         if (showLetterEventList[i].action == "blankspace") {
-          if (showLetterEventList[i].letter != "X" ||
-              (showLetterEventList[i].letter == "X" &&
-                  showLetterEventList[i - 1].letter != "A")) {
+          if (showLetterEventList[i].letter != secondSpecialLetter ||
+              (showLetterEventList[i].letter == secondSpecialLetter &&
+                  showLetterEventList[i - 1].letter != firstSpecialLetter)) {
             showLetterEventList[i].userResult = "FALSE";
           }
         }
@@ -179,6 +218,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     row.add("right_result");
     row.add("appear_time");
     row.add("action_time");
+    row.add("reaction_time");
     rows.add(row);
     for (int i = 0; i < showLetterEventList.length; i++) {
 //row refer to each column of a row in csv file and rows refer to each row in a file
@@ -189,6 +229,12 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       row.add(showLetterEventList[i].rightResult);
       row.add(showLetterEventList[i].letterAppearTime);
       row.add(showLetterEventList[i].actionTime);
+      var reactionTime;
+      if (showLetterEventList[i].actionTime != null) {
+        reactionTime = showLetterEventList[i].actionTime -
+            showLetterEventList[i].letterAppearTime;
+      }
+      row.add(reactionTime);
       rows.add(row);
     }
     return const ListToCsvConverter().convert(rows);
@@ -326,19 +372,38 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       isFirstIn = false;
     }
     String showLetter = "";
-    if(isFlushPrepare){
+    if (isFlushPrepare) {
       showLetter = "$prepareCount";
-    }else{
-      if (isShowLetter) {
-        showLetter = letters[alreadyShowLetterCount - 1];
-        LetterShowEvent letterShowEvent = new LetterShowEvent();
-        letterShowEvent.letter = showLetter;
-        letterShowEvent.rightResult = "TRUE_0";
-        letterShowEvent.userResult = "TRUE_0";
-        letterShowEvent.letterAppearTime = DateTime.now().millisecondsSinceEpoch;
-        showLetterEventList.add(letterShowEvent);
-      } else {
-        showLetter = "";
+    } else {
+      if (test.testType == Test.TEST_ATTENTION_LETTER) {
+        if (isShowLetter) {
+          showLetter = letters[alreadyShowLetterCount - 1];
+          LetterShowEvent letterShowEvent = new LetterShowEvent();
+          letterShowEvent.letter = showLetter;
+          letterShowEvent.rightResult = "TRUE_0";
+          letterShowEvent.userResult = "TRUE_0";
+          letterShowEvent.letterAppearTime =
+              DateTime.now().millisecondsSinceEpoch + 300;
+          showLetterEventList.add(letterShowEvent);
+        } else {
+          showLetter = "";
+        }
+      } else if (test.testType == Test.TEST_ATTENTION_AUDIO) {
+        if (isShowLetter) {
+          showLetter = letters[alreadyShowLetterCount - 1];
+          js.context.callMethod(
+              'playAudio', ['assets/audios/${showLetter.toLowerCase()}.mp3']);
+          LetterShowEvent letterShowEvent = new LetterShowEvent();
+          letterShowEvent.letter = showLetter;
+          letterShowEvent.rightResult = "TRUE_0";
+          letterShowEvent.userResult = "TRUE_0";
+          letterShowEvent.letterAppearTime =
+              DateTime.now().millisecondsSinceEpoch + 300;
+          showLetterEventList.add(letterShowEvent);
+          showLetter = "";
+        } else {
+          showLetter = "";
+        }
       }
     }
 
@@ -346,10 +411,24 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       onKey: (RawKeyEvent event) {
         if (event is RawKeyDownEvent && event.data is RawKeyEventDataWeb) {
           if (event.data.keyLabel == " " && !isFlushPrepare) {
-            showLetterEventList[alreadyShowLetterCount - 1].action =
-                "blankspace";
-            showLetterEventList[alreadyShowLetterCount - 1].actionTime =
-                DateTime.now().millisecondsSinceEpoch;
+            var currentTime = DateTime.now().millisecondsSinceEpoch;
+            if (currentTime -
+                    (showLetterEventList[alreadyShowLetterCount - 1]
+                            .letterAppearTime -
+                        300) <
+                300) {
+              if (alreadyShowLetterCount > 1) {
+                showLetterEventList[alreadyShowLetterCount - 2].action =
+                    "blankspace";
+                showLetterEventList[alreadyShowLetterCount - 2].actionTime =
+                    DateTime.now().millisecondsSinceEpoch;
+              }
+            } else {
+              showLetterEventList[alreadyShowLetterCount - 1].action =
+                  "blankspace";
+              showLetterEventList[alreadyShowLetterCount - 1].actionTime =
+                  DateTime.now().millisecondsSinceEpoch;
+            }
           }
         }
       },
@@ -379,11 +458,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
                 child: FlatButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new LabRulesPage()),
-                    );
+                    Navigator.pushNamed(context, "/AX-CPT/rule",arguments: test);
                   },
                   child: Row(
                     children: <Widget>[

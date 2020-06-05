@@ -10,25 +10,30 @@ class UserInfoPage extends StatelessWidget {
   static const String infoRoute = '/AX-CPT/info';
   @override
   Widget build(BuildContext context) {
+    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: new CommonPageBgWidget(
                 content:
-                    new UserInfoPageContentWidget())) // This trailing comma makes auto-formatting nicer for build methods.
+                    new UserInfoPageContentWidget(test:test))) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
 
 class UserInfoPageContentWidget extends StatefulWidget {
+  Test test;
+  UserInfoPageContentWidget({this.test});
   @override
   State<StatefulWidget> createState() {
-    return new _UserInfoPageContentState();
+    return new _UserInfoPageContentState(test:test);
   }
 }
 
 class _UserInfoPageContentState extends State<UserInfoPageContentWidget> {
+  Test test;
+  _UserInfoPageContentState({this.test});
   bool _isInputValid = false;
   String _name = "";
   String _labId = "";
@@ -136,7 +141,7 @@ class _UserInfoPageContentState extends State<UserInfoPageContentWidget> {
                   onPressed: () {
                     if (_isInputValid) {
                       _saveUserInfo();
-                      Navigator.pushNamed(context, "/AX-CPT/rule");
+                      Navigator.pushNamed(context, "/AX-CPT/rule",arguments: test);
 //                      Navigator.push(
 //                        context,
 //                        new MaterialPageRoute(builder: (context) => new LabRulesPage()),

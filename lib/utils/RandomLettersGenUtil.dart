@@ -1,4 +1,5 @@
 import 'dart:math';
+
 class RandomLettersGenUtil {
   static List<String> feedLetters = const <String>[
     "E",
@@ -10,6 +11,18 @@ class RandomLettersGenUtil {
     "V",
     "Y",
     "Z"
+  ];
+  static List<String> feedLettersForAudio = const <String>[
+    "B",
+    "E",
+    "I",
+    "J",
+    "K",
+    "O",
+    "R",
+    "T",
+    "U",
+    "Y"
   ];
 
   static List<int> getFixIndexs(
@@ -30,7 +43,7 @@ class RandomLettersGenUtil {
     return fixIndexList;
   }
 
-  static List<String> genRandomLetters() {
+  static List<String> genRandomLetters(List<String> feedLetters ,String firstSpecialLetter ,String secondSpecialLetter ) {
     List<String> letters = new List<String>(100);
     var correctALettersIndexList = genRandomCorrectIndexForLetterA();
     var remainingIndexs = genListRemainingIndexs(correctALettersIndexList);
@@ -42,16 +55,16 @@ class RandomLettersGenUtil {
 //    print(
 //        "a indexs ${correctALettersIndexList.toString()},remaining indexs is ${remainingIndexs.toString()},error a is: ${errorALettersIndexList}");
     for (int i = 0; i < 100;) {
-      int randomFeedLettersIndex = new Random().nextInt(9);
+      int randomFeedLettersIndex = new Random().nextInt(feedLetters.length);
       if (correctALettersIndexList.contains(i)) {
-        letters[i] = "A";
-        letters[i + 1] = "X";
+        letters[i] = firstSpecialLetter;
+        letters[i + 1] = secondSpecialLetter;
         i = i + 2;
       } else if (errorALettersIndexList.contains(i)) {
-        letters[i] = "A";
+        letters[i] = firstSpecialLetter;
         i++;
       } else if (errorXLetterIndexs.contains(i)) {
-        letters[i] = "X";
+        letters[i] = secondSpecialLetter;
         i++;
       } else {
         letters[i] = (feedLetters[randomFeedLettersIndex]);
@@ -59,6 +72,15 @@ class RandomLettersGenUtil {
       }
     }
 //    print("letters is " + letters.toString() + "::${letters.length}");
+    return letters;
+  }
+
+  static List<String> genRandomLettersForAudio() {
+    List<String> letters = new List<String>(100);
+    for (int i = 0; i < 100; i++) {
+      int randomFeedLettersIndex = new Random().nextInt(feedLettersForAudio.length);
+      letters[i] = (feedLettersForAudio[randomFeedLettersIndex]);
+    }
     return letters;
   }
 

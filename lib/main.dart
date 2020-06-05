@@ -11,6 +11,14 @@ void main() {
   runApp(MyApp());
 }
 
+class Test {
+  static int TEST_ATTENTION_LETTER = 0;
+  static int TEST_ATTENTION_AUDIO = 1;
+  int testType;
+
+  Test(this.testType);
+}
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -53,11 +61,11 @@ class NoAnimationMaterialPageRoute<T> extends MaterialPageRoute<T> {
 
   @override
   Widget buildTransitions(
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Widget child,
-      ) {
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     return child;
   }
 }
@@ -88,9 +96,12 @@ class HomePage extends StatelessWidget {
               new Row(
                 children: <Widget>[
                   new SelectLabWidget(
+                    labBigName: "AX-CPT",
                     labName: "注意力实验",
+                  labBigNameTextSize:48,
                     onButtonPress: () {
-                      Navigator.pushNamed(context, "/AX-CPT");
+                      Navigator.pushNamed(context, "/AX-CPT",
+                          arguments: Test(Test.TEST_ATTENTION_LETTER));
 //                      Navigator.push(
 //                        context,
 //                        new MaterialPageRoute(
@@ -103,13 +114,21 @@ class HomePage extends StatelessWidget {
                       padding: new EdgeInsets.only(
                           left: ScreenUtils.calWidthInScreen(context, 48)),
                       child: new SelectLabWidget(
-                        labName: "未开放",
+                        labName: "听觉CPT实验",
+                        labBigName:"Auditory-CPT" ,
+                        labBigNameTextSize:24,
+                        onButtonPress: () {
+                          Navigator.pushNamed(context, "/AX-CPT",
+                              arguments: Test(Test.TEST_ATTENTION_AUDIO));
+                        },
                       )),
                   Padding(
                       padding: new EdgeInsets.only(
                           left: ScreenUtils.calWidthInScreen(context, 48)),
                       child: new SelectLabWidget(
+                        labBigName: "AX-CPT",
                         labName: "未开放",
+                        labBigNameTextSize:48,
                       ))
                 ],
               ),
@@ -120,18 +139,24 @@ class HomePage extends StatelessWidget {
                   children: <Widget>[
                     new SelectLabWidget(
                       labName: "未开放",
+                      labBigName: "AX-CPT",
+                      labBigNameTextSize:48,
                     ),
                     Padding(
                         padding: new EdgeInsets.only(
                             left: ScreenUtils.calWidthInScreen(context, 48)),
                         child: new SelectLabWidget(
                           labName: "未开放",
+                          labBigName: "AX-CPT",
+                          labBigNameTextSize:48,
                         )),
                     Padding(
                         padding: new EdgeInsets.only(
                             left: ScreenUtils.calWidthInScreen(context, 48)),
                         child: new SelectLabWidget(
                           labName: "未开放",
+                          labBigName: "AX-CPT",
+                          labBigNameTextSize:48,
                         ))
                   ],
                 ),
@@ -172,9 +197,11 @@ class HomePage extends StatelessWidget {
 //}
 
 class SelectLabWidget extends StatelessWidget {
-  SelectLabWidget({this.labName, this.onButtonPress});
+  SelectLabWidget({this.labName,this.labBigName,this.labBigNameTextSize,this.onButtonPress});
 
   final String labName;
+  String labBigName = "--";
+  double labBigNameTextSize;
   final VoidCallback onButtonPress;
 
   @override
@@ -189,8 +216,8 @@ class SelectLabWidget extends StatelessWidget {
                 child: new Container(
                   child: new Center(
                     child: Text(
-                      "AX-CPT",
-                      style: new TextStyle(color: Colors.white, fontSize: 48),
+                      labBigName,
+                      style: new TextStyle(color: Colors.white, fontSize: labBigNameTextSize),
                     ),
                   ),
                   color: const Color(0xff00517D),

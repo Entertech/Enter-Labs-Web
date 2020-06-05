@@ -7,23 +7,42 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../main.dart';
+
 class LabRulesPage extends StatelessWidget {
 
   static const String ruleRoute = '/AX-CPT/rule';
   @override
   Widget build(BuildContext context) {
+    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: new CommonPageBgWidget(
                 content:
-                    new LabRulesWidget())) // This trailing comma makes auto-formatting nicer for build methods.
+                    new LabRulesWidget(test))) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
 
 class LabRulesWidget extends StatelessWidget {
+  Test test;
+  String firstLetter;
+  String secondLetter;
+  String rules;
+  LabRulesWidget(Test test){
+    this.test = test;
+    if(test.testType == Test.TEST_ATTENTION_AUDIO){
+      firstLetter = "T";
+      secondLetter = "S";
+      rules = "实验开始后，将会播放一系列字母音频，每次一个。当听到 $firstLetter 字母出现后紧接着听到 $secondLetter 字母，则按下键盘空格键，其他字母组合不做任何反应。你需要在下一个字母出现前对当前字母做出反应。";
+    }else{
+      firstLetter = "A";
+      secondLetter = "X";
+      rules = "实验开始后，屏幕上将会闪现一系列字母，每次一个。当看到 $firstLetter 字母出现后紧接着出现的 $secondLetter 字母，则按下键盘空格键，其他字母组合不做任何反应。你需要在下一个字母出现前对当前字母做出反应。";
+    }
+  }
   FocusNode focusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
@@ -34,7 +53,7 @@ class LabRulesWidget extends StatelessWidget {
           if (event is RawKeyDownEvent && event.data is RawKeyEventDataWeb) {
             if (event.data.keyLabel == " ") {
               Navigator.pop(context);
-              Navigator.pushNamed(context, "/AX-CPT/test");
+              Navigator.pushNamed(context, "/AX-CPT/test",arguments: test);
             }
           }
         },
@@ -62,7 +81,7 @@ class LabRulesWidget extends StatelessWidget {
                   children: <Widget>[
                     new Expanded(child: Container()),
                     Text(
-                      "A-X",
+                      "$firstLetter-$secondLetter",
                       style: TextStyle(color: Color(0xff323232), fontSize: 48),
                     ),
                     Padding(
@@ -136,7 +155,7 @@ class LabRulesWidget extends StatelessWidget {
                 width: 750,
                 height: 142,
                 child: Text(
-                  "实验开始后，屏幕上将会闪现一系列字母，每次一个。当看到 A 字母出现后紧接着出现的 X 字母，则按下键盘空格键，其他字母组合不做任何反应。你需要在下一个字母出现前对当前字母做出反应。",
+                  rules,
                   style: TextStyle(color: Colors.white, fontSize: 24),
                 ),
               ),

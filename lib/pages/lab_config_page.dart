@@ -7,36 +7,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../main.dart';
+
 class LabConfigPage extends StatelessWidget {
 
   static const String configRoute = '/AX-CPT/config';
   @override
   Widget build(BuildContext context) {
+    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: new CommonPageBgWidget(
                 content:
-                    new LabConfigPageContentWidget())) // This trailing comma makes auto-formatting nicer for build methods.
+                    new LabConfigPageContentWidget(test: test))) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
 
 class LabConfigPageContentWidget extends StatefulWidget {
+  Test test;
+  LabConfigPageContentWidget({this.test});
   @override
   State<StatefulWidget> createState() {
-    return new _LabConfigPageContentState();
+    return new _LabConfigPageContentState(test:test);
   }
 }
 
-void _saveConfigInfo(String textShowTime, String textHideTime) async {
+void _saveConfigInfo(String textShowTime, String textHideTime,Test test) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setString("textShowTime", textShowTime);
-  await preferences.setString("textHideTime", textHideTime);
+  await preferences.setString("textShowTime_${test.testType}", textShowTime);
+  await preferences.setString("textHideTime_${test.testType}", textHideTime);
 }
 
 class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
+  Test test;
+  _LabConfigPageContentState({this.test});
   String textShowTime;
   String textHideTime;
   TextEditingController textShowController;
@@ -47,12 +54,12 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
 
   void _initConfig() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    textShowTime = preferences.getString("textShowTime");
-    textHideTime = preferences.getString("textHideTime");
+    textShowTime = preferences.getString("textShowTime_${test.testType}");
+    textHideTime = preferences.getString("textHideTime_${test.testType}");
     if (textShowTime == null || textHideTime == null) {
       textShowTime = "300";
       textHideTime = "400";
-      _saveConfigInfo("300", "400");
+      _saveConfigInfo("300", "400",test);
     }
 
     textShowController = new TextEditingController(text: textShowTime);
@@ -219,7 +226,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
                 child: FlatButton(
                   onPressed: () {
                     if (_isInputValid) {
-                      _saveConfigInfo(textShowTime, textHideTime);
+                      _saveConfigInfo(textShowTime, textHideTime,test);
                       Navigator.pop(context);
                     } else {
                       _showErrorTip();
