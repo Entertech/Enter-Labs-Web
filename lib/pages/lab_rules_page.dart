@@ -10,11 +10,11 @@ import 'package:flutter/services.dart';
 import '../main.dart';
 
 class LabRulesPage extends StatelessWidget {
-
+  Test test;
+  LabRulesPage({this.test});
   static const String ruleRoute = '/AX-CPT/rule';
   @override
   Widget build(BuildContext context) {
-    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
@@ -53,7 +53,7 @@ class LabRulesWidget extends StatelessWidget {
           if (event is RawKeyDownEvent && event.data is RawKeyEventDataWeb) {
             if (event.data.keyLabel == " ") {
               Navigator.pop(context);
-              Navigator.pushNamed(context, "/AX-CPT/test",arguments: test);
+              Navigator.pushNamed(context, "/${test.testType}/test",arguments: test);
             }
           }
         },

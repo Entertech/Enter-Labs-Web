@@ -8,9 +8,10 @@ import '../main.dart';
 
 class UserInfoPage extends StatelessWidget {
   static const String infoRoute = '/AX-CPT/info';
+  Test test;
+  UserInfoPage({this.test});
   @override
   Widget build(BuildContext context) {
-    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
@@ -141,7 +142,7 @@ class _UserInfoPageContentState extends State<UserInfoPageContentWidget> {
                   onPressed: () {
                     if (_isInputValid) {
                       _saveUserInfo();
-                      Navigator.pushNamed(context, "/AX-CPT/rule",arguments: test);
+                      Navigator.pushNamed(context, "/${test.testType}/rule",arguments: test);
 //                      Navigator.push(
 //                        context,
 //                        new MaterialPageRoute(builder: (context) => new LabRulesPage()),

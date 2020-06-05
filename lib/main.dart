@@ -12,9 +12,9 @@ void main() {
 }
 
 class Test {
-  static int TEST_ATTENTION_LETTER = 0;
-  static int TEST_ATTENTION_AUDIO = 1;
-  int testType;
+  static String TEST_ATTENTION_LETTER = "AX-CPT";
+  static String TEST_ATTENTION_AUDIO = "Auditory-CPT";
+  String testType;
 
   Test(this.testType);
 }
@@ -42,11 +42,25 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routes: {
-        "/AX-CPT": (context) => LabStartPage(),
-        "/AX-CPT/info": (context) => UserInfoPage(),
-        "/AX-CPT/rule": (context) => LabRulesPage(),
-        "/AX-CPT/test": (context) => LabTestPage(),
-        "/AX-CPT/config": (context) => LabConfigPage()
+        "/AX-CPT": (context) => LabStartPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
+        "/AX-CPT/info": (context) =>
+            UserInfoPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
+        "/AX-CPT/rule": (context) =>
+            LabRulesPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
+        "/AX-CPT/test": (context) =>
+            LabTestPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
+        "/AX-CPT/config": (context) =>
+            LabConfigPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
+        "/Auditory-CPT": (context) =>
+            LabStartPage(test: new Test(Test.TEST_ATTENTION_AUDIO)),
+        "/Auditory-CPT/info": (context) =>
+            UserInfoPage(test: new Test(Test.TEST_ATTENTION_AUDIO)),
+        "/Auditory-CPT/rule": (context) =>
+            LabRulesPage(test: new Test(Test.TEST_ATTENTION_AUDIO)),
+        "/Auditory-CPT/test": (context) =>
+            LabTestPage(test: new Test(Test.TEST_ATTENTION_AUDIO)),
+        "/Auditory-CPT/config": (context) =>
+            LabConfigPage(test: new Test(Test.TEST_ATTENTION_AUDIO))
       },
       home: HomePage(),
     );
@@ -98,10 +112,9 @@ class HomePage extends StatelessWidget {
                   new SelectLabWidget(
                     labBigName: "AX-CPT",
                     labName: "注意力实验",
-                  labBigNameTextSize:48,
+                    labBigNameTextSize: 48,
                     onButtonPress: () {
-                      Navigator.pushNamed(context, "/AX-CPT",
-                          arguments: Test(Test.TEST_ATTENTION_LETTER));
+                      Navigator.pushNamed(context, "/AX-CPT");
 //                      Navigator.push(
 //                        context,
 //                        new MaterialPageRoute(
@@ -115,11 +128,10 @@ class HomePage extends StatelessWidget {
                           left: ScreenUtils.calWidthInScreen(context, 48)),
                       child: new SelectLabWidget(
                         labName: "听觉CPT实验",
-                        labBigName:"Auditory-CPT" ,
-                        labBigNameTextSize:24,
+                        labBigName: "Auditory-CPT",
+                        labBigNameTextSize: 24,
                         onButtonPress: () {
-                          Navigator.pushNamed(context, "/AX-CPT",
-                              arguments: Test(Test.TEST_ATTENTION_AUDIO));
+                          Navigator.pushNamed(context, "/Auditory-CPT");
                         },
                       )),
                   Padding(
@@ -128,7 +140,7 @@ class HomePage extends StatelessWidget {
                       child: new SelectLabWidget(
                         labBigName: "AX-CPT",
                         labName: "未开放",
-                        labBigNameTextSize:48,
+                        labBigNameTextSize: 48,
                       ))
                 ],
               ),
@@ -140,7 +152,7 @@ class HomePage extends StatelessWidget {
                     new SelectLabWidget(
                       labName: "未开放",
                       labBigName: "AX-CPT",
-                      labBigNameTextSize:48,
+                      labBigNameTextSize: 48,
                     ),
                     Padding(
                         padding: new EdgeInsets.only(
@@ -148,7 +160,7 @@ class HomePage extends StatelessWidget {
                         child: new SelectLabWidget(
                           labName: "未开放",
                           labBigName: "AX-CPT",
-                          labBigNameTextSize:48,
+                          labBigNameTextSize: 48,
                         )),
                     Padding(
                         padding: new EdgeInsets.only(
@@ -156,7 +168,7 @@ class HomePage extends StatelessWidget {
                         child: new SelectLabWidget(
                           labName: "未开放",
                           labBigName: "AX-CPT",
-                          labBigNameTextSize:48,
+                          labBigNameTextSize: 48,
                         ))
                   ],
                 ),
@@ -197,7 +209,11 @@ class HomePage extends StatelessWidget {
 //}
 
 class SelectLabWidget extends StatelessWidget {
-  SelectLabWidget({this.labName,this.labBigName,this.labBigNameTextSize,this.onButtonPress});
+  SelectLabWidget(
+      {this.labName,
+      this.labBigName,
+      this.labBigNameTextSize,
+      this.onButtonPress});
 
   final String labName;
   String labBigName = "--";
@@ -217,7 +233,8 @@ class SelectLabWidget extends StatelessWidget {
                   child: new Center(
                     child: Text(
                       labBigName,
-                      style: new TextStyle(color: Colors.white, fontSize: labBigNameTextSize),
+                      style: new TextStyle(
+                          color: Colors.white, fontSize: labBigNameTextSize),
                     ),
                   ),
                   color: const Color(0xff00517D),

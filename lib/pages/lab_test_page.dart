@@ -23,9 +23,10 @@ void playAudio(String path) {
 class LabTestPage extends StatelessWidget {
   static const String testRoute = '/AX-CPT/test';
 
+  Test test;
+  LabTestPage({this.test});
   @override
   Widget build(BuildContext context) {
-    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
@@ -458,7 +459,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
                 child: FlatButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, "/AX-CPT/rule",arguments: test);
+                    Navigator.pushNamed(context, "/${test.testType}/rule",arguments: test);
                   },
                   child: Row(
                     children: <Widget>[

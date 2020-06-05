@@ -11,10 +11,11 @@ import '../main.dart';
 
 class LabConfigPage extends StatelessWidget {
 
+  Test test;
+  LabConfigPage({this.test});
   static const String configRoute = '/AX-CPT/config';
   @override
   Widget build(BuildContext context) {
-    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it

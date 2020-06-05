@@ -7,9 +7,10 @@ import '../main.dart';
 
 class LabStartPage extends StatelessWidget {
   static const String startRoute = '/AX-CPT';
+  Test test;
+  LabStartPage({this.test});
   @override
   Widget build(BuildContext context) {
-    Test test = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         body: Center(
             // Center is a layout widget. It takes a single child and positions it
@@ -80,7 +81,7 @@ class LabStartPageContentWidget extends StatelessWidget {
                 border: new Border.all(color: Colors.white, width: 1)),
             child: FlatButton(
               onPressed: () {
-                Navigator.pushNamed(context, "/AX-CPT/config", arguments: test);
+                Navigator.pushNamed(context, "/${test.testType}/config", arguments: test);
 //                Navigator.push(
 //                  context,
 //                  new MaterialPageRoute(
@@ -119,7 +120,7 @@ class LabStartPageContentWidget extends StatelessWidget {
               height: 61,
               child: FlatButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, "/AX-CPT/info", arguments: test);
+                  Navigator.pushNamed(context, "/${test.testType}/info", arguments: test);
 //                  Navigator.push(
 //                    context,
 //                    new MaterialPageRoute(
