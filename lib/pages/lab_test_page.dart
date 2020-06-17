@@ -72,21 +72,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
 
   _LabTestPageContentWidgetState(Test test) {
     this.test = test;
-    if (test.testType == Test.TEST_ATTENTION_AUDIO) {
-      firstSpecialLetter = "T";
-      secondSpecialLetter = "S";
-      letters = RandomLettersGenUtil.genRandomLetters(
-          ["B", "C", "E", "F", "G", "M", "P", "V", "X"],
-          firstSpecialLetter,
-          secondSpecialLetter);
-    } else {
-      firstSpecialLetter = "A";
-      secondSpecialLetter = "X";
-      letters = RandomLettersGenUtil.genRandomLetters(
-          ["E", "F", "H", "L", "N", "T", "V", "Y", "Z"],
-          firstSpecialLetter,
-          secondSpecialLetter);
-    }
   }
 
   var showLetterEventList = new List<LetterShowEvent>();
@@ -97,6 +82,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   Timer hideTextTimer;
   int _textShowTime = 300;
   int _textHideTime = 400;
+  int _textTotalCount = 100;
   String _testStartTime = "";
   var isTestEnd = false;
   String _user = "";
@@ -113,13 +99,37 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
         preferences.getString("textShowTime_${test.testType}");
     var textHideTimeStr =
         preferences.getString("textHideTime_${test.testType}");
+
+    var textTotalCountStr =
+    preferences.getString("textTotalCount_${test.testType}");
     if (textShowTimeStr != null && textShowTimeStr != "") {
       _textShowTime = int.parse(textShowTimeStr);
     }
     if (textHideTimeStr != null && textHideTimeStr != "") {
       _textHideTime = int.parse(textHideTimeStr);
     }
+    if (textTotalCountStr != null && textTotalCountStr != "") {
+      _textTotalCount = int.parse(textTotalCountStr);
+    }
+    _initLetters();
     _prepareTest();
+  }
+  void _initLetters(){
+    if (test.testType == Test.TEST_ATTENTION_AUDIO) {
+      firstSpecialLetter = "T";
+      secondSpecialLetter = "S";
+      letters = RandomLettersGenUtil.genRandomLetters(
+          ["B", "C", "E", "F", "G", "M", "P", "V", "X"],
+          firstSpecialLetter,
+          secondSpecialLetter,_textTotalCount);
+    } else {
+      firstSpecialLetter = "A";
+      secondSpecialLetter = "X";
+      letters = RandomLettersGenUtil.genRandomLetters(
+          ["E", "F", "H", "L", "N", "T", "V", "Y", "Z"],
+          firstSpecialLetter,
+          secondSpecialLetter,_textTotalCount);
+    }
   }
 
   void _prepareTest() {
@@ -153,7 +163,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
         new Timer(new Duration(milliseconds: _textHideTime), _showText);
     setState(() {
       isShowLetter = false;
-      if (alreadyShowLetterCount >= 100) {
+      if (alreadyShowLetterCount >= _textTotalCount) {
         showTextTimer.cancel();
         hideTextTimer.cancel();
         new Timer(new Duration(milliseconds: _textHideTime), _endTest);

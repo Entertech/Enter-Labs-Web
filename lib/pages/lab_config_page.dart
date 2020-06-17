@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:enterlabs/ScreenUtls.dart';
 import 'package:enterlabs/common_widget/common_page_bg.dart';
+import 'package:enterlabs/utils/RandomLettersGenUtil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -10,10 +11,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 
 class LabConfigPage extends StatelessWidget {
-
   Test test;
+
   LabConfigPage({this.test});
+
   static const String configRoute = '/AX-CPT/config';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,34 +24,44 @@ class LabConfigPage extends StatelessWidget {
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: new CommonPageBgWidget(
-                content:
-                    new LabConfigPageContentWidget(test: test))) // This trailing comma makes auto-formatting nicer for build methods.
+                content: new LabConfigPageContentWidget(
+                    test:
+                        test))) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
 
 class LabConfigPageContentWidget extends StatefulWidget {
   Test test;
+
   LabConfigPageContentWidget({this.test});
+
   @override
   State<StatefulWidget> createState() {
-    return new _LabConfigPageContentState(test:test);
+    return new _LabConfigPageContentState(test: test);
   }
 }
 
-void _saveConfigInfo(String textShowTime, String textHideTime,Test test) async {
+void _saveConfigInfo(String textShowTime, String textHideTime,
+    String textTotalCount, Test test) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.setString("textShowTime_${test.testType}", textShowTime);
   await preferences.setString("textHideTime_${test.testType}", textHideTime);
+  await preferences.setString(
+      "textTotalCount_${test.testType}", textTotalCount);
 }
 
 class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
   Test test;
+
   _LabConfigPageContentState({this.test});
+
   String textShowTime;
   String textHideTime;
+  String textTotalCount;
   TextEditingController textShowController;
   TextEditingController textHideController;
+  TextEditingController textCountController;
 
   bool _isInputValid = false;
   bool _isShowErrorTip = false;
@@ -57,14 +70,17 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     textShowTime = preferences.getString("textShowTime_${test.testType}");
     textHideTime = preferences.getString("textHideTime_${test.testType}");
+    textTotalCount = preferences.getString("textTotalCount_${test.testType}");
     if (textShowTime == null || textHideTime == null) {
       textShowTime = "300";
       textHideTime = "400";
-      _saveConfigInfo("300", "400",test);
+      textTotalCount = "100";
+      _saveConfigInfo("300", "400", "100", test);
     }
 
     textShowController = new TextEditingController(text: textShowTime);
     textHideController = new TextEditingController(text: textHideTime);
+    textCountController = new TextEditingController(text: textTotalCount);
     _checkInputIsValid();
   }
 
@@ -79,9 +95,19 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
       RegExp regExp = new RegExp(r"^[0-9]*$");
       _isInputValid = regExp.hasMatch(textShowTime) &&
           regExp.hasMatch(textHideTime) &&
+          regExp.hasMatch(textTotalCount) &&
           textShowTime != "" &&
-          textHideTime != "";
+          textHideTime != "" &&
+          textTotalCount != "" &&
+          _checkLetterTotalCount(textTotalCount);
     });
+  }
+
+  bool _checkLetterTotalCount(String count) {
+    var totalCountInt = int.parse(count);
+    var specialLetterCount =
+        totalCountInt * RandomLettersGenUtil.specialLetterFactor;
+    return specialLetterCount * 10 / 10 - specialLetterCount.toInt()== 0;
   }
 
   void _showErrorTip() {
@@ -107,7 +133,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
               borderRadius: BorderRadius.circular(26.5)),
           child: Padding(
             child: Text(
-              "请输入数字",
+              "请输入正确数字",
               style: TextStyle(color: Colors.white, fontSize: 24),
             ),
             padding:
@@ -213,8 +239,52 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
               ],
             ),
             padding: new EdgeInsets.only(
+              top: ScreenUtils.calHeightInScreen(context, 48),
+            ),
+          ),
+          Padding(
+            child: Row(
+              children: <Widget>[
+                new Expanded(
+                  child: Container(),
+                ),
+                Text(
+                  "字母显示总数:",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                Padding(
+                  padding: new EdgeInsets.only(left: 8, right: 8),
+                  child: Container(
+                    width: 160,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                    child: TextField(
+                        controller: textCountController,
+                        onChanged: (text) {
+                          textTotalCount = text;
+                          _checkInputIsValid();
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4.0), //没什么卵效果
+                            ))),
+                  ),
+                ),
+                Text(
+                  "个数",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                new Expanded(
+                  child: Container(),
+                )
+              ],
+            ),
+            padding: new EdgeInsets.only(
                 top: ScreenUtils.calHeightInScreen(context, 48),
-                bottom: ScreenUtils.calHeightInScreen(context, 175)),
+                bottom: ScreenUtils.calHeightInScreen(context, 48)),
           ),
           Padding(
             padding: new EdgeInsets.only(bottom: 24),
@@ -227,7 +297,8 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
                 child: FlatButton(
                   onPressed: () {
                     if (_isInputValid) {
-                      _saveConfigInfo(textShowTime, textHideTime,test);
+                      _saveConfigInfo(
+                          textShowTime, textHideTime, textTotalCount, test);
                       Navigator.pop(context);
                     } else {
                       _showErrorTip();

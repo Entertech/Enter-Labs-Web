@@ -1,6 +1,10 @@
 import 'dart:math';
 
 class RandomLettersGenUtil {
+  static int letterTotalCount = 100;
+  static double specialLetterFactor = 0.12;
+  static int specialLetterCount =
+      letterTotalCount * specialLetterFactor.toInt();
   static List<String> feedLetters = const <String>[
     "E",
     "F",
@@ -43,8 +47,11 @@ class RandomLettersGenUtil {
     return fixIndexList;
   }
 
-  static List<String> genRandomLetters(List<String> feedLetters ,String firstSpecialLetter ,String secondSpecialLetter ) {
-    List<String> letters = new List<String>(100);
+  static List<String> genRandomLetters(List<String> feedLetters,
+      String firstSpecialLetter, String secondSpecialLetter, int totalCount) {
+    letterTotalCount = totalCount;
+    specialLetterCount = (letterTotalCount * specialLetterFactor).toInt();
+    List<String> letters = new List<String>(letterTotalCount);
     var correctALettersIndexList = genRandomCorrectIndexForLetterA();
     var remainingIndexs = genListRemainingIndexs(correctALettersIndexList);
     var errorALettersIndexList = genRandomErrorIndexForLetterA(remainingIndexs);
@@ -54,7 +61,7 @@ class RandomLettersGenUtil {
     var errorXLetterIndexs = genRandomErrorIndexForLetterX(unfixIndexs);
 //    print(
 //        "a indexs ${correctALettersIndexList.toString()},remaining indexs is ${remainingIndexs.toString()},error a is: ${errorALettersIndexList}");
-    for (int i = 0; i < 100;) {
+    for (int i = 0; i < letterTotalCount;) {
       int randomFeedLettersIndex = new Random().nextInt(feedLetters.length);
       if (correctALettersIndexList.contains(i)) {
         letters[i] = firstSpecialLetter;
@@ -76,23 +83,25 @@ class RandomLettersGenUtil {
   }
 
   static List<String> genRandomLettersForAudio() {
-    List<String> letters = new List<String>(100);
-    for (int i = 0; i < 100; i++) {
-      int randomFeedLettersIndex = new Random().nextInt(feedLettersForAudio.length);
+    List<String> letters = new List<String>(letterTotalCount);
+    for (int i = 0; i < letterTotalCount; i++) {
+      int randomFeedLettersIndex =
+          new Random().nextInt(feedLettersForAudio.length);
       letters[i] = (feedLettersForAudio[randomFeedLettersIndex]);
     }
     return letters;
   }
 
   static List<int> genRandomCorrectIndexForLetterA() {
-    List<int> aIndexList = new List<int>(12).toList();
+    List<int> aIndexList =
+        new List<int>(specialLetterCount).toList();
     int count = 0;
-    while (count < 12) {
-      int currentIndex = new Random().nextInt(100);
+    while (count < specialLetterCount) {
+      int currentIndex = new Random().nextInt(letterTotalCount);
       if (!aIndexList.contains(currentIndex) &&
           !aIndexList.contains(currentIndex + 1) &&
           !aIndexList.contains(currentIndex - 1) &&
-          currentIndex != 99) {
+          currentIndex != letterTotalCount - 1) {
         aIndexList[count++] = (currentIndex);
       }
     }
@@ -101,9 +110,9 @@ class RandomLettersGenUtil {
   }
 
   static List<int> genRandomErrorIndexForLetterA(List<int> remainingIndex) {
-    List<int> aIndexList = new List<int>(12).toList();
+    List<int> aIndexList = new List<int>(specialLetterCount).toList();
     int count = 0;
-    while (count < 12) {
+    while (count < specialLetterCount) {
       int currentIndex = new Random().nextInt(remainingIndex.length);
       if (!aIndexList.contains(remainingIndex[currentIndex])) {
         aIndexList[count++] = remainingIndex[currentIndex];
@@ -114,9 +123,9 @@ class RandomLettersGenUtil {
   }
 
   static List<int> genRandomErrorIndexForLetterX(List<int> remainingIndex) {
-    List<int> aIndexList = new List<int>(12).toList();
+    List<int> aIndexList = new List<int>(specialLetterCount).toList();
     int count = 0;
-    while (count < 12) {
+    while (count < specialLetterCount) {
       int currentIndex = new Random().nextInt(remainingIndex.length);
       if (!aIndexList.contains(remainingIndex[currentIndex])) {
         aIndexList[count++] = remainingIndex[currentIndex];
@@ -133,7 +142,7 @@ class RandomLettersGenUtil {
       fixSourceList.add(source[i] + 1);
     }
     List<int> remainingIndexs = new List<int>();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < letterTotalCount; i++) {
       if (!fixSourceList.toList().contains(i)) {
         remainingIndexs.add(i);
       }
