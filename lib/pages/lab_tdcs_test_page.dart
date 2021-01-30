@@ -568,6 +568,28 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
                   ),
                 ),
               ),
+            ),
+
+            Positioned(
+              left: ScreenUtils.calWidthInScreen(context, 96),
+              bottom: ScreenUtils.calHeightInScreen(context, 40),
+              child: Container(
+                width: 178,
+                height: 60,
+                child: Row(
+                  children: <Widget>[
+                    new Expanded(child: Container()),
+                    Padding(
+                      padding: new EdgeInsets.only(left: 16),
+                      child: Text(
+                        "${_backStep}-back",
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
+                    ),
+                    new Expanded(child: Container())
+                  ],
+                ),
+              ),
             )
           ],
         ),

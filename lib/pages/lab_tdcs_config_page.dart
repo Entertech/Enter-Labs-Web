@@ -57,8 +57,7 @@ void _saveConfigInfo(
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.setString("textShowTime_${test.testType}", textShowTime);
   await preferences.setString("textHideTime_${test.testType}", textHideTime);
-  await preferences.setString(
-      "textTotalCount_${test.testType}", textTotalCount);
+  await preferences.setString("textTotalCount_${test.testType}", textTotalCount);
   await preferences.setString("letters_${test.testType}", letters);
   await preferences.setString("backStep_${test.testType}", backStep);
   await preferences.setString("backRate_${test.testType}", backRate);
