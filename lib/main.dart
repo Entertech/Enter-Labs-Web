@@ -3,6 +3,7 @@ import 'package:enterlabs/pages/lab_config_page.dart';
 import 'package:enterlabs/pages/lab_rules_page.dart';
 import 'package:enterlabs/pages/lab_start_page.dart';
 import 'package:enterlabs/pages/lab_tdcs_config_page.dart';
+import 'package:enterlabs/pages/lab_tdcs_rules_page.dart';
 import 'package:enterlabs/pages/lab_tdcs_test_page.dart';
 import 'package:enterlabs/pages/lab_test_page.dart';
 import 'package:enterlabs/pages/user_info_page.dart';
@@ -71,7 +72,7 @@ class MyApp extends StatelessWidget {
         "/tDCS-3-back/info": (context) =>
             UserInfoPage(test: new Test(Test.TEST_tDCS_3_BACK)),
         "/tDCS-3-back/rule": (context) =>
-            LabRulesPage(test: new Test(Test.TEST_tDCS_3_BACK)),
+            LabTDCSRulesPage(test: new Test(Test.TEST_tDCS_3_BACK)),
         "/tDCS-3-back/test": (context) =>
             LabTDCSTestPage(test: new Test(Test.TEST_tDCS_3_BACK)),
         "/tDCS-3-back/config": (context) =>
@@ -153,12 +154,13 @@ class HomePage extends StatelessWidget {
                       padding: new EdgeInsets.only(
                           left: ScreenUtils.calWidthInScreen(context, 48)),
                       child: new SelectLabWidget(
-                          labBigName: "tDCS-3-back",
-                          labName: "tDCS实验",
-                          labBigNameTextSize: 24,
+                        labBigName: "tDCS-3-back",
+                        labName: "tDCS实验",
+                        labBigNameTextSize: 24,
                         onButtonPress: () {
                           Navigator.pushNamed(context, "/tDCS-3-back");
-                        },))
+                        },
+                      ))
                 ],
               ),
               Padding(

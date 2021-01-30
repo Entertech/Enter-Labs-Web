@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:js' as js;
-
+import 'package:intl/intl.dart';
 import '../main.dart';
 
 void playAudio(String path) {
@@ -88,7 +88,8 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   late int _textTotalCount = 60;
   late int _backStep = 3;
   late double _backRate = 0.25;
-  late List<String> _sourceLetters;
+  late int _breakTime = 60;
+  late List<String> _sourceLetters = ["A","B","C","D","E","F","G","H","I","J","K","L"];
   late String _testStartTime = "";
   late var isTestEnd = false;
   late String _user = "";
@@ -102,10 +103,16 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _initConfig();
     showLetterEventList.clear();
+  }
+
+  void _initFileName() {
+    var now = new DateTime.now();
+    var formatter = new DateFormat('yyyy-MM-dd_HH:mm:ss');
+    String startTime = formatter.format(now);
+    _fileName = "${_user}_${startTime}";
   }
 
   void _initConfig() async {
@@ -119,6 +126,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     var lettersStr = preferences.getString("letters_${test.testType}");
     var backStepStr = preferences.getString("backStep_${test.testType}");
     var backRate = preferences.getString("backRate_${test.testType}");
+    var breakTime = preferences.getString("breakTime_${test.testType}");
     if (textShowTimeStr != "") {
       _textShowTime = int.parse(textShowTimeStr);
     }
@@ -137,6 +145,13 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     if (backRate != "") {
       _backRate = double.parse(backRate);
     }
+    if (breakTime != "") {
+      _breakTime = int.parse(breakTime);
+    }
+
+    _user = preferences.getString("user");
+    _labId = preferences.getString("labId");
+    _initFileName();
   }
 
   void _initLetters() {
@@ -197,7 +212,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
 
   void _endTest() {
     setState(() {
-      _getUserInfo();
       isTestEnd = true;
     });
   }
@@ -205,16 +219,16 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   int breakCount = 0;
   late Timer breakTimer;
   bool isBreak = false;
-  int currentSecond = 60;
+  late int currentSecond;
 
   void _startShowBreakCountText() {
-    currentSecond = 60;
+    currentSecond = _breakTime;
     isBreak = true;
     _showTimerCount();
   }
 
   void _showTimerCount() {
-    if (currentSecond == 60) {
+    if (currentSecond == _breakTime) {
       breakCount++;
     }
     if (currentSecond == 0) {
@@ -232,31 +246,10 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     }
   }
 
-  void _getUserInfo() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    _user = preferences.getString("user");
-    _labId = preferences.getString("labId");
-  }
-
   void _handleLetterEventList() {
     for (int i = 0; i < showLetterEventList.length - 1; i++) {
-      if (showLetterEventList[i].letter == firstSpecialLetter &&
-          showLetterEventList[i + 1].letter == secondSpecialLetter) {
-        showLetterEventList[i + 1].rightResult = "TRUE_1";
-        if (showLetterEventList[i + 1].action == "blankspace") {
-          showLetterEventList[i + 1].userResult = "TRUE_1";
-        } else {
-          showLetterEventList[i + 1].userResult = "OVERTIME";
-        }
-      }
-      if (i > 0) {
-        if (showLetterEventList[i].action == "blankspace") {
-          if (showLetterEventList[i].letter != secondSpecialLetter ||
-              (showLetterEventList[i].letter == secondSpecialLetter &&
-                  showLetterEventList[i - 1].letter != firstSpecialLetter)) {
-            showLetterEventList[i].userResult = "FALSE";
-          }
-        }
+      if(showLetterEventList[i].action == ""){
+        showLetterEventList[i].userResult = "OVERTIME";
       }
     }
 
@@ -280,7 +273,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     row.add("letter");
     row.add("action");
     row.add("user_result");
-    row.add("right_result");
     row.add("appear_time");
     row.add("action_time");
     row.add("reaction_time");
@@ -291,7 +283,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       row.add(showLetterEventList[i].letter);
       row.add(showLetterEventList[i].action);
       row.add(showLetterEventList[i].userResult);
-      row.add(showLetterEventList[i].rightResult);
       row.add(showLetterEventList[i].letterAppearTime);
       row.add(showLetterEventList[i].actionTime);
       var reactionTime;
@@ -325,7 +316,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   }
 
   void _onDownloadFileClick() async {
-    // _handleLetterEventList();
+    _handleLetterEventList();
     var csvText = _initCsvText();
     _onFileDownload(csvText);
   }
@@ -334,7 +325,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   Widget build(BuildContext context) {
     FocusScope.of(context).requestFocus(focusNode);
     if (isTestEnd) {
-      _fileName = "$_user-编号：$_labId";
       return Container(
           width: 343,
           child: Column(
@@ -479,22 +469,31 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
             showLetterEventList[
                     (breakCount * letters.length) + alreadyShowLetterCount - 1]
                 .actionTime = DateTime.now().millisecondsSinceEpoch;
-            if (alreadyShowLetterCount > 3) {
-              if (letters[alreadyShowLetterCount - 1 - 3] == showLetter &&
+            if (alreadyShowLetterCount > _backStep) {
+              if (letters[alreadyShowLetterCount - 1 - _backStep] == showLetter &&
                       (event.data.keyLabel == "m" ||
                           event.data.keyLabel == "M") ||
-                  letters[alreadyShowLetterCount - 1 - 3] != showLetter &&
+                  letters[alreadyShowLetterCount - 1 - _backStep] != showLetter &&
                       (event.data.keyLabel == "n" ||
                           event.data.keyLabel == "N")) {
+                showLetterEventList[
+                (breakCount * letters.length) + alreadyShowLetterCount - 1]
+                    .userResult = "TRUE";
                 setState(() {
                   clickResultColor = Colors.red;
                 });
               } else {
+                showLetterEventList[
+                (breakCount * letters.length) + alreadyShowLetterCount - 1]
+                    .userResult = "FALSE";
                 setState(() {
                   clickResultColor = Colors.green;
                 });
               }
             } else {
+              showLetterEventList[
+              (breakCount * letters.length) + alreadyShowLetterCount - 1]
+                  .userResult = "FALSE";
               setState(() {
                 clickResultColor = Colors.green;
               });
