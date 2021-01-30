@@ -8,7 +8,9 @@ import '../main.dart';
 class LabStartPage extends StatelessWidget {
   static const String startRoute = '/AX-CPT';
   Test test;
-  LabStartPage({this.test});
+
+  LabStartPage({required this.test});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,9 +26,9 @@ class LabStartPage extends StatelessWidget {
 }
 
 class LabStartPageContentWidget extends StatelessWidget {
-  Test test;
-  String introduceText;
-  double introduceTextSize;
+  Test? test;
+  String? introduceText;
+  double? introduceTextSize;
 
   LabStartPageContentWidget(Test test) {
     this.test = test;
@@ -38,6 +40,8 @@ class LabStartPageContentWidget extends StatelessWidget {
       introduceTextSize = 32;
       this.introduceText =
           "AX-CPT 范式（AX version of Continuous Performance Task）是一个连续执行任务，连续性能测试。通过 AX-CPT 范式可以测试持续注意力。持续注意是保持对某些连续活动或刺激的持续关注的能力。";
+    } else if (test.testType == Test.TEST_tDCS_3_BACK) {
+      this.introduceText = "tDCS-3-back";
     }
   }
 
@@ -64,8 +68,9 @@ class LabStartPageContentWidget extends StatelessWidget {
               width: ScreenUtils.calWidthInScreen(context, 1087),
               child: new Center(
                 child: Text(
-                  introduceText,
-                  style: TextStyle(color: Colors.white, fontSize: introduceTextSize),
+                  introduceText!!,
+                  style: TextStyle(
+                      color: Colors.white, fontSize: introduceTextSize),
                 ),
               )),
         ),
@@ -81,7 +86,8 @@ class LabStartPageContentWidget extends StatelessWidget {
                 border: new Border.all(color: Colors.white, width: 1)),
             child: FlatButton(
               onPressed: () {
-                Navigator.pushNamed(context, "/${test.testType}/config", arguments: test);
+                Navigator.pushNamed(context, "/${test?.testType}/config",
+                    arguments: test);
 //                Navigator.push(
 //                  context,
 //                  new MaterialPageRoute(
@@ -120,7 +126,8 @@ class LabStartPageContentWidget extends StatelessWidget {
               height: 61,
               child: FlatButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, "/${test.testType}/info", arguments: test);
+                  Navigator.pushNamed(context, "/${test?.testType}/info",
+                      arguments: test);
 //                  Navigator.push(
 //                    context,
 //                    new MaterialPageRoute(

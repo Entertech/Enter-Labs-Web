@@ -3,13 +3,14 @@ import 'package:enterlabs/common_widget/common_page_bg.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+// @dart=2.9
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 
 class UserInfoPage extends StatelessWidget {
   static const String infoRoute = '/AX-CPT/info';
   Test test;
-  UserInfoPage({this.test});
+  UserInfoPage({required this.test});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +26,7 @@ class UserInfoPage extends StatelessWidget {
 
 class UserInfoPageContentWidget extends StatefulWidget {
   Test test;
-  UserInfoPageContentWidget({this.test});
+  UserInfoPageContentWidget({required this.test});
   @override
   State<StatefulWidget> createState() {
     return new _UserInfoPageContentState(test:test);
@@ -34,7 +35,7 @@ class UserInfoPageContentWidget extends StatefulWidget {
 
 class _UserInfoPageContentState extends State<UserInfoPageContentWidget> {
   Test test;
-  _UserInfoPageContentState({this.test});
+  _UserInfoPageContentState({required this.test});
   bool _isInputValid = false;
   String _name = "";
   String _labId = "";

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 class CommonPageBgWidget extends StatelessWidget {
-  CommonPageBgWidget({this.content});
+  CommonPageBgWidget({required this.content});
 
   final Widget content;
 

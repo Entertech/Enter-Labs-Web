@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NavigationUtil {
-  static List<BuildContext> contexts = new List();
+  static List<BuildContext> contexts = [];
 
   static void pushPage(BuildContext context, Widget widget) {
     contexts.add(context);

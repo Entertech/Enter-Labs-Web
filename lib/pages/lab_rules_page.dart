@@ -1,8 +1,5 @@
 import 'package:enterlabs/ScreenUtls.dart';
 import 'package:enterlabs/common_widget/common_page_bg.dart';
-import 'package:enterlabs/pages/lab_config_page.dart';
-import 'package:enterlabs/pages/lab_test_page.dart';
-import 'package:enterlabs/utils/NavigationUtil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +8,11 @@ import '../main.dart';
 
 class LabRulesPage extends StatelessWidget {
   Test test;
-  LabRulesPage({this.test});
+
+  LabRulesPage({required this.test});
+
   static const String ruleRoute = '/AX-CPT/rule';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,30 +20,37 @@ class LabRulesPage extends StatelessWidget {
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: new CommonPageBgWidget(
-                content:
-                    new LabRulesWidget(test))) // This trailing comma makes auto-formatting nicer for build methods.
+                content: new LabRulesWidget(
+                    test))) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
 
 class LabRulesWidget extends StatelessWidget {
-  Test test;
-  String firstLetter;
-  String secondLetter;
-  String rules;
-  LabRulesWidget(Test test){
+  Test? test;
+  String? firstLetter;
+  String? secondLetter;
+  String? rules;
+
+  LabRulesWidget(Test test) {
     this.test = test;
-    if(test.testType == Test.TEST_ATTENTION_AUDIO){
+    if (test.testType == Test.TEST_ATTENTION_AUDIO) {
       firstLetter = "T";
       secondLetter = "S";
-      rules = "实验开始后，将会播放一系列字母音频，每次一个。当听到 $firstLetter 字母出现后紧接着听到 $secondLetter 字母，则按下键盘空格键，其他字母组合不做任何反应。你需要在下一个字母出现前对当前字母做出反应。";
-    }else{
+      rules =
+          "实验开始后，将会播放一系列字母音频，每次一个。当听到 $firstLetter 字母出现后紧接着听到 $secondLetter 字母，则按下键盘空格键，其他字母组合不做任何反应。你需要在下一个字母出现前对当前字母做出反应。";
+    } else if (test.testType == Test.TEST_ATTENTION_LETTER) {
       firstLetter = "A";
       secondLetter = "X";
-      rules = "实验开始后，屏幕上将会闪现一系列字母，每次一个。当看到 $firstLetter 字母出现后紧接着出现的 $secondLetter 字母，则按下键盘空格键，其他字母组合不做任何反应。你需要在下一个字母出现前对当前字母做出反应。";
+      rules =
+          "实验开始后，屏幕上将会闪现一系列字母，每次一个。当看到 $firstLetter 字母出现后紧接着出现的 $secondLetter 字母，则按下键盘空格键，其他字母组合不做任何反应。你需要在下一个字母出现前对当前字母做出反应。";
+    } else {
+      rules = "tDCS-3-back";
     }
   }
+
   FocusNode focusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     FocusScope.of(context).requestFocus(focusNode);
@@ -53,7 +60,8 @@ class LabRulesWidget extends StatelessWidget {
           if (event is RawKeyDownEvent && event.data is RawKeyEventDataWeb) {
             if (event.data.keyLabel == " ") {
               Navigator.pop(context);
-              Navigator.pushNamed(context, "/${test.testType}/test",arguments: test);
+              Navigator.pushNamed(context, "/${test?.testType}/test",
+                  arguments: test);
             }
           }
         },
@@ -155,7 +163,7 @@ class LabRulesWidget extends StatelessWidget {
                 width: 750,
                 height: 142,
                 child: Text(
-                  rules,
+                  rules!!,
                   style: TextStyle(color: Colors.white, fontSize: 24),
                 ),
               ),

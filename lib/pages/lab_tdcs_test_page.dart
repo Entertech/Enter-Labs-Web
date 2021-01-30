@@ -20,11 +20,13 @@ void playAudio(String path) {
 // not on the web so we must use a mobile/desktop library...
 }
 
-class LabTestPage extends StatelessWidget {
-  static const String testRoute = '/AX-CPT/test';
+class LabTDCSTestPage extends StatelessWidget {
+  static const String testRoute = '/tDCS-3-back/test';
 
   Test test;
-  LabTestPage({required this.test});
+
+  LabTDCSTestPage({required this.test});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +35,8 @@ class LabTestPage extends StatelessWidget {
             // in the middle of the parent.
             child: new CommonPageBgWidget(
                 content: new LabTestPageContentWidget(
-                    test: test))) // This trailing comma makes auto-formatting nicer for build methods.
+                    test:
+                        test))) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
@@ -76,12 +79,16 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   late var showLetterEventList = <LetterShowEvent>[];
   late var isFirstIn = true;
   late var isShowLetter = false;
+  Color clickResultColor = Colors.grey;
   late var alreadyShowLetterCount = 0;
   late Timer showTextTimer;
   late Timer hideTextTimer;
-  late int _textShowTime = 300;
-  late int _textHideTime = 400;
-  late int _textTotalCount = 100;
+  late int _textShowTime = 1000;
+  late int _textHideTime = 0;
+  late int _textTotalCount = 60;
+  late int _backStep = 3;
+  late double _backRate = 0.25;
+  late List<String> _sourceLetters;
   late String _testStartTime = "";
   late var isTestEnd = false;
   late String _user = "";
@@ -89,71 +96,94 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   late String _fileName = "";
   late bool isFlushPrepare = true;
   late int prepareCount = 4;
+  late bool isPress = false;
 
   FocusNode focusNode = FocusNode();
 
-  void _initTime() async {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _initConfig();
+    showLetterEventList.clear();
+  }
+
+  void _initConfig() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     var textShowTimeStr =
         preferences.getString("textShowTime_${test.testType}");
     var textHideTimeStr =
         preferences.getString("textHideTime_${test.testType}");
-
     var textTotalCountStr =
-    preferences.getString("textTotalCount_${test.testType}");
-    if (textShowTimeStr != null && textShowTimeStr != "") {
+        preferences.getString("textTotalCount_${test.testType}");
+    var lettersStr = preferences.getString("letters_${test.testType}");
+    var backStepStr = preferences.getString("backStep_${test.testType}");
+    var backRate = preferences.getString("backRate_${test.testType}");
+    if (textShowTimeStr != "") {
       _textShowTime = int.parse(textShowTimeStr);
     }
-    if (textHideTimeStr != null && textHideTimeStr != "") {
+    if (textHideTimeStr != "") {
       _textHideTime = int.parse(textHideTimeStr);
     }
-    if (textTotalCountStr != null && textTotalCountStr != "") {
+    if (textTotalCountStr != "") {
       _textTotalCount = int.parse(textTotalCountStr);
     }
-    _initLetters();
-    _prepareTest();
-  }
-  void _initLetters(){
-    if (test.testType == Test.TEST_ATTENTION_AUDIO) {
-      firstSpecialLetter = "T";
-      secondSpecialLetter = "S";
-      letters = RandomLettersGenUtil.genRandomLetters(
-          ["B", "C", "E", "F", "G", "M", "P", "V", "X"],
-          firstSpecialLetter,
-          secondSpecialLetter,_textTotalCount);
-    } else {
-      firstSpecialLetter = "A";
-      secondSpecialLetter = "X";
-      letters = RandomLettersGenUtil.genRandomLetters(
-          ["E", "F", "H", "L", "N", "T", "V", "Y", "Z"],
-          firstSpecialLetter,
-          secondSpecialLetter,_textTotalCount);
+    if (lettersStr != "") {
+      _sourceLetters = lettersStr.split(",");
+    }
+    if (backStepStr != "") {
+      _backStep = int.parse(backStepStr);
+    }
+    if (backRate != "") {
+      _backRate = double.parse(backRate);
     }
   }
 
-  void _prepareTest() {
+  void _initLetters() {
+    letters = RandomLettersGenUtil.getRandomTDCS3BackLetters(
+        _sourceLetters, _textTotalCount, _backStep, _backRate);
+  }
+
+  void _showTestReadyCountText() {
     setState(() {
       isFlushPrepare = true;
       prepareCount--;
     });
     if (prepareCount > 0) {
-      new Timer(new Duration(milliseconds: 1000), _prepareTest);
+      new Timer(new Duration(milliseconds: 1000), _showTestReadyCountText);
     } else {
-      isFlushPrepare = false;
-      _hideText();
+      _startShowTestText();
     }
   }
 
-  void _startShowText() {
-    _initTime();
+  void _startShowTestText() {
+    _initLetters();
+    alreadyShowLetterCount = 0;
+    isFlushPrepare = false;
+    _showText();
+  }
+
+  void _startText() {
+    _showTestReadyCountText();
   }
 
   void _showText() {
-    showTextTimer =
-        new Timer(new Duration(milliseconds: _textShowTime), _hideText);
     setState(() {
+      isPress = false;
       isShowLetter = true;
       alreadyShowLetterCount++;
+      if (alreadyShowLetterCount >= _textTotalCount) {
+        showTextTimer.cancel();
+        if (breakCount < 5) {
+          new Timer(new Duration(milliseconds: _textShowTime),
+              _startShowBreakCountText);
+        } else {
+          new Timer(new Duration(milliseconds: _textShowTime), _endTest);
+        }
+      } else {
+        showTextTimer =
+            new Timer(new Duration(milliseconds: _textShowTime), _showText);
+      }
     });
   }
 
@@ -162,11 +192,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
         new Timer(new Duration(milliseconds: _textHideTime), _showText);
     setState(() {
       isShowLetter = false;
-      if (alreadyShowLetterCount >= _textTotalCount) {
-        showTextTimer.cancel();
-        hideTextTimer.cancel();
-        new Timer(new Duration(milliseconds: _textHideTime), _endTest);
-      }
     });
   }
 
@@ -175,6 +200,36 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       _getUserInfo();
       isTestEnd = true;
     });
+  }
+
+  int breakCount = 0;
+  late Timer breakTimer;
+  bool isBreak = false;
+  int currentSecond = 60;
+
+  void _startShowBreakCountText() {
+    currentSecond = 60;
+    isBreak = true;
+    _showTimerCount();
+  }
+
+  void _showTimerCount() {
+    if (currentSecond == 60) {
+      breakCount++;
+    }
+    if (currentSecond == 0) {
+      breakTimer.cancel();
+      if (breakCount < 6) {
+        isBreak = false;
+        _startShowTestText();
+      }
+    } else {
+      setState(() {
+        currentSecond--;
+        breakTimer =
+            new Timer(new Duration(milliseconds: 1000), _showTimerCount);
+      });
+    }
   }
 
   void _getUserInfo() async {
@@ -270,7 +325,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   }
 
   void _onDownloadFileClick() async {
-    _handleLetterEventList();
+    // _handleLetterEventList();
     var csvText = _initCsvText();
     _onFileDownload(csvText);
   }
@@ -375,7 +430,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
           ));
     }
     if (isFirstIn) {
-      _startShowText();
+      _startText();
       var now = DateTime.now();
       _testStartTime =
           "${now.month}/${now.day}/${now.year} ${now.hour}:${now.minute}";
@@ -384,33 +439,24 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     String showLetter = "";
     if (isFlushPrepare) {
       showLetter = "$prepareCount";
+      clickResultColor = Colors.transparent;
     } else {
-      if (test.testType == Test.TEST_ATTENTION_LETTER) {
+      if (isBreak) {
+        showLetter = "${currentSecond}";
+        clickResultColor = Colors.transparent;
+      } else {
         if (isShowLetter) {
           showLetter = letters[alreadyShowLetterCount - 1];
-          LetterShowEvent letterShowEvent = new LetterShowEvent();
-          letterShowEvent.letter = showLetter;
-          letterShowEvent.rightResult = "TRUE_0";
-          letterShowEvent.userResult = "TRUE_0";
-          letterShowEvent.letterAppearTime =
-              DateTime.now().millisecondsSinceEpoch + 300;
-          showLetterEventList.add(letterShowEvent);
-        } else {
-          showLetter = "";
-        }
-      } else if (test.testType == Test.TEST_ATTENTION_AUDIO) {
-        if (isShowLetter) {
-          showLetter = letters[alreadyShowLetterCount - 1];
-          js.context.callMethod(
-              'playAudio', ['assets/audios/${showLetter.toLowerCase()}.mp3']);
-          LetterShowEvent letterShowEvent = new LetterShowEvent();
-          letterShowEvent.letter = showLetter;
-          letterShowEvent.rightResult = "TRUE_0";
-          letterShowEvent.userResult = "TRUE_0";
-          letterShowEvent.letterAppearTime =
-              DateTime.now().millisecondsSinceEpoch + 300;
-          showLetterEventList.add(letterShowEvent);
-          showLetter = "";
+          if (!isPress) {
+            clickResultColor = Colors.grey;
+            LetterShowEvent letterShowEvent = new LetterShowEvent();
+            letterShowEvent.letter = showLetter;
+            letterShowEvent.rightResult = "TRUE_0";
+            letterShowEvent.userResult = "TRUE_0";
+            letterShowEvent.letterAppearTime =
+                DateTime.now().millisecondsSinceEpoch;
+            showLetterEventList.add(letterShowEvent);
+          }
         } else {
           showLetter = "";
         }
@@ -420,27 +466,42 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     return new RawKeyboardListener(
       onKey: (RawKeyEvent event) {
         if (event is RawKeyDownEvent && event.data is RawKeyEventDataWeb) {
-          if (event.data.keyLabel == " " && !isFlushPrepare) {
-            var currentTime = DateTime.now().millisecondsSinceEpoch;
-            if (currentTime -
-                    (showLetterEventList[alreadyShowLetterCount - 1]
-                            .letterAppearTime!! -
-                        300) <
-                300) {
-              if (alreadyShowLetterCount > 1) {
-                showLetterEventList[alreadyShowLetterCount - 2].action =
-                    "blankspace";
-                showLetterEventList[alreadyShowLetterCount - 2].actionTime =
-                    DateTime.now().millisecondsSinceEpoch;
+          if ((event.data.keyLabel == "m" ||
+                  event.data.keyLabel == "n" ||
+                  event.data.keyLabel == "M" ||
+                  event.data.keyLabel == "N") &&
+              !isFlushPrepare &&
+              !isPress) {
+            isPress = true;
+            showLetterEventList[
+                    (breakCount * letters.length) + alreadyShowLetterCount - 1]
+                .action = "${event.data.keyLabel.toUpperCase()}";
+            showLetterEventList[
+                    (breakCount * letters.length) + alreadyShowLetterCount - 1]
+                .actionTime = DateTime.now().millisecondsSinceEpoch;
+            if (alreadyShowLetterCount > 3) {
+              if (letters[alreadyShowLetterCount - 1 - 3] == showLetter &&
+                      (event.data.keyLabel == "m" ||
+                          event.data.keyLabel == "M") ||
+                  letters[alreadyShowLetterCount - 1 - 3] != showLetter &&
+                      (event.data.keyLabel == "n" ||
+                          event.data.keyLabel == "N")) {
+                setState(() {
+                  clickResultColor = Colors.red;
+                });
+              } else {
+                setState(() {
+                  clickResultColor = Colors.green;
+                });
               }
             } else {
-              showLetterEventList[alreadyShowLetterCount - 1].action =
-                  "blankspace";
-              showLetterEventList[alreadyShowLetterCount - 1].actionTime =
-                  DateTime.now().millisecondsSinceEpoch;
+              setState(() {
+                clickResultColor = Colors.green;
+              });
             }
           }
         }
+        // }
       },
       focusNode: focusNode,
       child: new ConstrainedBox(
@@ -450,11 +511,27 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
           children: <Widget>[
             Container(
               child: Center(
-                child: Text(
-                  showLetter,
-                  style: TextStyle(color: Colors.white, fontSize: 180),
+                  child: Container(
+                width: 250,
+                child: Column(
+                  children: [
+                    new Expanded(child: Container()),
+                    new Container(
+                      decoration: BoxDecoration(color: clickResultColor),
+                      height: 50,
+                    ),
+                    Text(
+                      showLetter,
+                      style: TextStyle(color: Colors.white, fontSize: 180),
+                    ),
+                    new Container(
+                      decoration: BoxDecoration(color: clickResultColor),
+                      height: 50,
+                    ),
+                    new Expanded(child: Container())
+                  ],
                 ),
-              ),
+              )),
             ),
             Positioned(
               left: ScreenUtils.calWidthInScreen(context, 96),
@@ -468,7 +545,8 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
                 child: FlatButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, "/${test.testType}/rule",arguments: test);
+                    Navigator.pushNamed(context, "/${test.testType}/rule",
+                        arguments: test);
                   },
                   child: Row(
                     children: <Widget>[

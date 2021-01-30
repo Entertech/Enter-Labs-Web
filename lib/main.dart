@@ -2,8 +2,11 @@ import 'package:enterlabs/ScreenUtls.dart';
 import 'package:enterlabs/pages/lab_config_page.dart';
 import 'package:enterlabs/pages/lab_rules_page.dart';
 import 'package:enterlabs/pages/lab_start_page.dart';
+import 'package:enterlabs/pages/lab_tdcs_config_page.dart';
+import 'package:enterlabs/pages/lab_tdcs_test_page.dart';
 import 'package:enterlabs/pages/lab_test_page.dart';
 import 'package:enterlabs/pages/user_info_page.dart';
+import 'package:enterlabs/utils/RandomLettersGenUtil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +17,7 @@ void main() {
 class Test {
   static String TEST_ATTENTION_LETTER = "AX-CPT";
   static String TEST_ATTENTION_AUDIO = "Auditory-CPT";
+  static String TEST_tDCS_3_BACK = "tDCS-3-back";
   String testType;
 
   Test(this.testType);
@@ -42,7 +46,8 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routes: {
-        "/AX-CPT": (context) => LabStartPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
+        "/AX-CPT": (context) =>
+            LabStartPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
         "/AX-CPT/info": (context) =>
             UserInfoPage(test: new Test(Test.TEST_ATTENTION_LETTER)),
         "/AX-CPT/rule": (context) =>
@@ -60,7 +65,17 @@ class MyApp extends StatelessWidget {
         "/Auditory-CPT/test": (context) =>
             LabTestPage(test: new Test(Test.TEST_ATTENTION_AUDIO)),
         "/Auditory-CPT/config": (context) =>
-            LabConfigPage(test: new Test(Test.TEST_ATTENTION_AUDIO))
+            LabConfigPage(test: new Test(Test.TEST_ATTENTION_AUDIO)),
+        "/tDCS-3-back": (context) =>
+            LabStartPage(test: new Test(Test.TEST_tDCS_3_BACK)),
+        "/tDCS-3-back/info": (context) =>
+            UserInfoPage(test: new Test(Test.TEST_tDCS_3_BACK)),
+        "/tDCS-3-back/rule": (context) =>
+            LabRulesPage(test: new Test(Test.TEST_tDCS_3_BACK)),
+        "/tDCS-3-back/test": (context) =>
+            LabTDCSTestPage(test: new Test(Test.TEST_tDCS_3_BACK)),
+        "/tDCS-3-back/config": (context) =>
+            LabTDCSConfigPage(test: new Test(Test.TEST_tDCS_3_BACK)),
       },
       home: HomePage(),
     );
@@ -69,8 +84,8 @@ class MyApp extends StatelessWidget {
 
 class NoAnimationMaterialPageRoute<T> extends MaterialPageRoute<T> {
   NoAnimationMaterialPageRoute({
-    @required WidgetBuilder builder,
-    RouteSettings settings,
+    required WidgetBuilder builder,
+    required RouteSettings settings,
   }) : super(builder: builder, settings: settings);
 
   @override
@@ -138,10 +153,12 @@ class HomePage extends StatelessWidget {
                       padding: new EdgeInsets.only(
                           left: ScreenUtils.calWidthInScreen(context, 48)),
                       child: new SelectLabWidget(
-                        labBigName: "AX-CPT",
-                        labName: "未开放",
-                        labBigNameTextSize: 48,
-                      ))
+                          labBigName: "tDCS-3-back",
+                          labName: "tDCS实验",
+                          labBigNameTextSize: 24,
+                        onButtonPress: () {
+                          Navigator.pushNamed(context, "/tDCS-3-back");
+                        },))
                 ],
               ),
               Padding(
@@ -210,15 +227,15 @@ class HomePage extends StatelessWidget {
 
 class SelectLabWidget extends StatelessWidget {
   SelectLabWidget(
-      {this.labName,
-      this.labBigName,
-      this.labBigNameTextSize,
+      {required this.labName,
+      required this.labBigName,
+      required this.labBigNameTextSize,
       this.onButtonPress});
 
   final String labName;
   String labBigName = "--";
   double labBigNameTextSize;
-  final VoidCallback onButtonPress;
+  final VoidCallback? onButtonPress;
 
   @override
   Widget build(BuildContext context) {

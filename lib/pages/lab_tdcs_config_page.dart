@@ -6,17 +6,19 @@ import 'package:enterlabs/utils/RandomLettersGenUtil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+
 // @dart=2.9
 import 'package:shared_preferences/shared_preferences.dart';
+
 // @dart=2.9
 import '../main.dart';
 
-class LabConfigPage extends StatelessWidget {
+class LabTDCSConfigPage extends StatelessWidget {
   Test test;
 
-  LabConfigPage({required this.test});
+  LabTDCSConfigPage({required this.test});
 
-  static const String configRoute = '/AX-CPT/config';
+  static const String configRoute = '/tDCS-3-back/config';
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +45,22 @@ class LabConfigPageContentWidget extends StatefulWidget {
   }
 }
 
-void _saveConfigInfo(String textShowTime, String textHideTime,
-    String textTotalCount, Test test) async {
+void _saveConfigInfo(
+    String textShowTime,
+    String textHideTime,
+    String textTotalCount,
+    String letters,
+    String backStep,
+    String backRate,
+    Test test) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.setString("textShowTime_${test.testType}", textShowTime);
   await preferences.setString("textHideTime_${test.testType}", textHideTime);
   await preferences.setString(
       "textTotalCount_${test.testType}", textTotalCount);
+  await preferences.setString("letters_${test.testType}", letters);
+  await preferences.setString("backStep_${test.testType}", backStep);
+  await preferences.setString("backRate_${test.testType}", backRate);
 }
 
 class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
@@ -60,9 +71,15 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
   String? textShowTime;
   String? textHideTime;
   String? textTotalCount;
+  String? letters;
+  String? backStep;
+  String? backRate;
   TextEditingController? textShowController;
   TextEditingController? textHideController;
   TextEditingController? textCountController;
+  TextEditingController? lettersController;
+  TextEditingController? backStepController;
+  TextEditingController? backRateController;
 
   bool _isInputValid = false;
   bool _isShowErrorTip = false;
@@ -72,16 +89,26 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
     textShowTime = preferences.getString("textShowTime_${test?.testType}");
     textHideTime = preferences.getString("textHideTime_${test?.testType}");
     textTotalCount = preferences.getString("textTotalCount_${test?.testType}");
+    letters = preferences.getString("letters_${test?.testType}");
+    backStep = preferences.getString("backStep_${test?.testType}");
+    backRate = preferences.getString("backRate_${test?.testType}");
     if (textShowTime == null || textHideTime == null) {
-      textShowTime = "300";
-      textHideTime = "400";
-      textTotalCount = "100";
-      _saveConfigInfo("300", "400", "100", test!!);
+      textShowTime = "1000";
+      textHideTime = "0";
+      textTotalCount = "60";
+      letters = "A,B,C,D,E,F,G,H,I,J,K,L";
+      backStep = "3";
+      backRate = "0.25";
+      _saveConfigInfo(textShowTime!!, textHideTime!!, textTotalCount!!,
+          letters!!, backStep!!, backRate!!, test!!);
     }
 
     textShowController = new TextEditingController(text: textShowTime);
     textHideController = new TextEditingController(text: textHideTime);
     textCountController = new TextEditingController(text: textTotalCount);
+    lettersController = new TextEditingController(text: letters);
+    backStepController = new TextEditingController(text: backStep);
+    backRateController = new TextEditingController(text: backRate);
     _checkInputIsValid();
   }
 
@@ -100,7 +127,9 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
           textShowTime != "" &&
           textHideTime != "" &&
           textTotalCount != "" &&
-          _checkLetterTotalCount(textTotalCount!!);
+          letters != "" &&
+          backStep != "" &&
+          backRate != "";
     });
   }
 
@@ -108,7 +137,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
     var totalCountInt = int.parse(count);
     var specialLetterCount =
         totalCountInt * RandomLettersGenUtil.specialLetterFactor;
-    return specialLetterCount * 10 / 10 - specialLetterCount.toInt()== 0;
+    return specialLetterCount * 10 / 10 - specialLetterCount.toInt() == 0;
   }
 
   void _showErrorTip() {
@@ -151,8 +180,8 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
           errorTip,
           Padding(
             padding: new EdgeInsets.only(
-                top: ScreenUtils.calHeightInScreen(context, 53),
-                bottom: ScreenUtils.calHeightInScreen(context, 96)),
+                top: ScreenUtils.calHeightInScreen(context, 16),
+                bottom: ScreenUtils.calHeightInScreen(context, 16)),
             child: new Center(
               child: Text(
                 "实验配置",
@@ -240,7 +269,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
               ],
             ),
             padding: new EdgeInsets.only(
-              top: ScreenUtils.calHeightInScreen(context, 48),
+              top: ScreenUtils.calHeightInScreen(context, 24),
             ),
           ),
           Padding(
@@ -284,49 +313,199 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
               ],
             ),
             padding: new EdgeInsets.only(
-                top: ScreenUtils.calHeightInScreen(context, 48),
-                bottom: ScreenUtils.calHeightInScreen(context, 48)),
+              top: ScreenUtils.calHeightInScreen(context, 24),
+            ),
           ),
           Padding(
-            padding: new EdgeInsets.only(bottom: 24),
-            child: Container(
-                decoration: BoxDecoration(
-                    color: Color(0xffF5916D),
-                    borderRadius: BorderRadius.circular(4)),
-                width: 176,
-                height: 61,
-                child: FlatButton(
-                  onPressed: () {
-                    if (_isInputValid) {
-                      _saveConfigInfo(
-                          textShowTime!!, textHideTime!!, textTotalCount!!, test!!);
-                      Navigator.pop(context);
-                    } else {
-                      _showErrorTip();
-                    }
-                  },
-                  child: Text(
-                    "确认修改",
-                    style: TextStyle(color: Colors.white, fontSize: 28),
-                  ),
-                )),
-          ),
-          Container(
-              decoration: BoxDecoration(
-                  border: new Border.all(color: Colors.white, width: 1),
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(4)),
-              width: 176,
-              height: 61,
-              child: FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  "取消修改",
-                  style: TextStyle(color: Colors.white, fontSize: 28),
+            child: Row(
+              children: <Widget>[
+                new Expanded(
+                  child: Container(),
                 ),
-              )),
+                Text(
+                  "字母序列:",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                Padding(
+                  padding: new EdgeInsets.only(left: 8, right: 8),
+                  child: Container(
+                    width: 160,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                    child: TextField(
+                        controller: lettersController,
+                        onChanged: (text) {
+                          letters = text;
+                          _checkInputIsValid();
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4.0), //没什么卵效果
+                            ))),
+                  ),
+                ),
+                Text(
+                  "",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                new Expanded(
+                  child: Container(),
+                )
+              ],
+            ),
+            padding: new EdgeInsets.only(
+              top: ScreenUtils.calHeightInScreen(context, 24),
+            ),
+          ),
+          Padding(
+            child: Row(
+              children: <Widget>[
+                new Expanded(
+                  child: Container(),
+                ),
+                Text(
+                  "back距离:",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                Padding(
+                  padding: new EdgeInsets.only(left: 8, right: 8),
+                  child: Container(
+                    width: 160,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                    child: TextField(
+                        controller: backStepController,
+                        onChanged: (text) {
+                          backStep = text;
+                          _checkInputIsValid();
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4.0), //没什么卵效果
+                            ))),
+                  ),
+                ),
+                Text(
+                  "",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                new Expanded(
+                  child: Container(),
+                )
+              ],
+            ),
+            padding: new EdgeInsets.only(
+              top: ScreenUtils.calHeightInScreen(context, 24),
+            ),
+          ),
+          Padding(
+            child: Row(
+              children: <Widget>[
+                new Expanded(
+                  child: Container(),
+                ),
+                Text(
+                  "back概率:",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                Padding(
+                  padding: new EdgeInsets.only(left: 8, right: 8),
+                  child: Container(
+                    width: 160,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                    child: TextField(
+                        controller: backRateController,
+                        onChanged: (text) {
+                          backRate = text;
+                          _checkInputIsValid();
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4.0), //没什么卵效果
+                            ))),
+                  ),
+                ),
+                Text(
+                  "",
+                  style: TextStyle(color: Colors.white, fontSize: 32),
+                ),
+                new Expanded(
+                  child: Container(),
+                )
+              ],
+            ),
+            padding: new EdgeInsets.only(
+              top: ScreenUtils.calHeightInScreen(context, 24),
+              bottom: ScreenUtils.calHeightInScreen(context, 24),
+            ),
+          ),
+          Row(
+            children: [
+              new Expanded(
+                child: Container(),
+              ),
+              Container(
+                  decoration: BoxDecoration(
+                      color: Color(0xffF5916D),
+                      borderRadius: BorderRadius.circular(4)),
+                  width: 176,
+                  height: 61,
+                  child: FlatButton(
+                    onPressed: () {
+                      if (_isInputValid) {
+                        _saveConfigInfo(
+                            textShowTime!!,
+                            textHideTime!!,
+                            textTotalCount!!,
+                            letters!!,
+                            backStep!!,
+                            backRate!!,
+                            test!!);
+                        Navigator.pop(context);
+                      } else {
+                        _showErrorTip();
+                      }
+                    },
+                    child: Text(
+                      "确认修改",
+                      style: TextStyle(color: Colors.white, fontSize: 28),
+                    ),
+                  )),
+              Padding(
+                padding: new EdgeInsets.only(
+                    left: ScreenUtils.calHeightInScreen(context, 24)),
+                child: Container(
+                    decoration: BoxDecoration(
+                        border: new Border.all(color: Colors.white, width: 1),
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(4)),
+                    width: 176,
+                    height: 61,
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "取消修改",
+                        style: TextStyle(color: Colors.white, fontSize: 28),
+                      ),
+                    )),
+              ),
+              new Expanded(
+                child: Container(),
+              ),
+            ],
+          ),
           new Expanded(child: new Container())
         ],
       ),
