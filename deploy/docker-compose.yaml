@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+
+  enterlab:
+    image: {{REGISTRY}}/enterlabs:1.1.0
+    build:
+      context: .
+    ports: 
+      - "9999:80"

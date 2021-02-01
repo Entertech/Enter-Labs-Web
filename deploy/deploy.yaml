@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: labs
+  name: enterlab
+  labels:
+    service: enterlab
+    version: 1.1.0
+spec:
+  ports:
+    - port: 80
+      name: http
+  selector:
+    app: enterlab
+    version: 1.1.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: labs
+  name: enterlab
+  labels:
+    app: enterlab
+    version: 1.1.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: enterlab
+      version: 1.1.0
+  template:
+    metadata:
+      labels:
+        app: enterlab
+        version: 1.1.0
+    spec:
+      imagePullSecrets:
+        - name: registry
+      containers:
+        - name: enterlab
+          image: registry.cn-shanghai.aliyuncs.com/affectivecloud/enterlabs:1.1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
+              readOnly: true
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 100m
+            limits:
+              memory: 150Mi
+              cpu: 200m
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /etc/localtime
