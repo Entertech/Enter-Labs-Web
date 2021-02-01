@@ -266,8 +266,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
         showLetterEventList[i].userResult = "OVERTIME";
       }
     }
-
-//    print(showLetterEventList.toList().toString());
   }
 
   String _initCsvText() {

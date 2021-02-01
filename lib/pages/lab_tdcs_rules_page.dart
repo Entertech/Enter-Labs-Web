@@ -35,7 +35,7 @@ class LabRulesWidget extends StatelessWidget {
   LabRulesWidget(Test test) {
     this.test = test;
     rules =
-        "测试开始后电脑屏幕呈现字母序列，每个字母出现在屏幕中央 3 s。每次实验由六组实验组成，每组实验序列长度为 60 个字母，一组结束后，经过 60 s 休息开始下一组实验。您需要在屏幕出现字母时判断该字母与（第）前 n 次出现的那个字母是否一致，一致则按“m”，不一致则按“n” ；判对则上下提示灯为红色，判错则显示绿色。";
+        "测试开始后电脑屏幕呈现字母序列，每个字母出现在屏幕中央 3 s。每次实验由六组实验组成，每组实验序列长度为 60 个字母，一组结束后，经过 60 s 休息开始下一组实验。您需要在屏幕出现字母时判断该字母与（第）前 n 次出现的那个字母是否一致，一致则按“m”，不一致则按“n” ；判对则上下提示灯为绿色，判错则显示红色。";
   }
 
   FocusNode focusNode = FocusNode();
@@ -68,19 +68,30 @@ class LabRulesWidget extends StatelessWidget {
             Padding(padding: new EdgeInsets.only(top:  ScreenUtils.calHeightInScreen(context, 24)),child: Image(
               height: 200,
               image:
-              new AssetImage("icons/tdcs_rule.png"),
+              new AssetImage("assets/icons/tdcs_rule.png"),
             ),),
 
             Padding(
               padding: new EdgeInsets.only(
-                  top: ScreenUtils.calHeightInScreen(context, 70),
-                  bottom: ScreenUtils.calHeightInScreen(context, 44)),
+                  top: ScreenUtils.calHeightInScreen(context, 70),),
               child: Container(
                 width: 750,
                 height: 142,
                 child: Text(
                   rules!!,
                   style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ),
+            ),
+            Padding(
+              padding: new EdgeInsets.only(
+                top: ScreenUtils.calHeightInScreen(context, 16),),
+
+              child: Container(
+                height: 142,
+                child: Text(
+                  "按'空格键'开始试验",
+                  style: TextStyle(color: Colors.red, fontSize: 24),
                 ),
               ),
             ),
