@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: enterlab
+  namespace: ac-test
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+spec:
+  rules:
+  - host: lab.entertech.cn
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: enterlab
+          servicePort: 80
+  tls:
+  - hosts:
+    - lab.entertech.cn
+    secretName: lab
