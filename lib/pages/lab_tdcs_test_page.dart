@@ -89,6 +89,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   late int _backStep = 3;
   late double _backRate = 0.25;
   late int _breakTime = 60;
+  late int _testCount = 6;
   late List<String> _sourceLetters = [
     "A",
     "B",
@@ -140,6 +141,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     var backStepStr = preferences.getString("backStep_${test.testType}");
     var backRate = preferences.getString("backRate_${test.testType}");
     var breakTime = preferences.getString("breakTime_${test.testType}");
+    var testCount = preferences.getString("testCount_${test.testType}");
     if (textShowTimeStr != "") {
       _textShowTime = int.parse(textShowTimeStr);
     }
@@ -160,6 +162,9 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     }
     if (breakTime != "") {
       _breakTime = int.parse(breakTime);
+    }
+    if (testCount != "") {
+      _testCount = int.parse(testCount);
     }
 
     _user = preferences.getString("user");
@@ -199,7 +204,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     alreadyShowLetterCount++;
     if (alreadyShowLetterCount >= _textTotalCount) {
       showTextTimer.cancel();
-      if (breakCount < 5) {
+      if (breakCount < _testCount-1) {
         new Timer(new Duration(milliseconds: _textShowTime),
             _startShowBreakCountText);
       } else {

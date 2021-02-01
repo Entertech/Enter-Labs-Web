@@ -53,6 +53,7 @@ void _saveConfigInfo(
     String backStep,
     String backRate,
     String breakTime,
+    String testCount,
     Test test) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.setString("textShowTime_${test.testType}", textShowTime);
@@ -62,6 +63,7 @@ void _saveConfigInfo(
   await preferences.setString("backStep_${test.testType}", backStep);
   await preferences.setString("backRate_${test.testType}", backRate);
   await preferences.setString("breakTime_${test.testType}", breakTime);
+  await preferences.setString("testCount_${test.testType}", testCount);
 }
 
 class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
@@ -76,6 +78,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
   String? backStep;
   String? backRate;
   String? breakTime;
+  String? testCount;
   TextEditingController? textShowController;
   TextEditingController? textHideController;
   TextEditingController? textCountController;
@@ -83,6 +86,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
   TextEditingController? backStepController;
   TextEditingController? backRateController;
   TextEditingController? breakTimeController;
+  TextEditingController? testCountController;
 
   bool _isInputValid = false;
   bool _isShowErrorTip = false;
@@ -96,6 +100,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
     backStep = preferences.getString("backStep_${test?.testType}");
     backRate = preferences.getString("backRate_${test?.testType}");
     breakTime = preferences.getString("breakTime_${test?.testType}");
+    testCount = preferences.getString("testCount_${test?.testType}");
     if (textShowTime == null || textHideTime == null) {
       textShowTime = "3000";
       textHideTime = "0";
@@ -104,8 +109,9 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
       backStep = "3";
       backRate = "0.25";
       breakTime = "60";
+      testCount = "6";
       _saveConfigInfo(textShowTime!!, textHideTime!!, textTotalCount!!,
-          letters!!, backStep!!, backRate!!,breakTime!!, test!!);
+          letters!!, backStep!!, backRate!!,breakTime!!,testCount!!, test!!);
     }
 
     textShowController = new TextEditingController(text: textShowTime);
@@ -115,6 +121,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
     backStepController = new TextEditingController(text: backStep);
     backRateController = new TextEditingController(text: backRate);
     breakTimeController = new TextEditingController(text: breakTime);
+    testCountController = new TextEditingController(text: testCount);
     _checkInputIsValid();
   }
 
@@ -317,6 +324,40 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
                       top: ScreenUtils.calHeightInScreen(context, 24),
                     ),
                   ),
+                  Padding(padding: (new EdgeInsets.only( top: ScreenUtils.calHeightInScreen(context, 24))),child:    Row(
+                    children: <Widget>[
+                      Text(
+                        "测试组数:",
+                        style: TextStyle(color: Colors.white, fontSize: 32),
+                      ),
+                      Padding(
+                        padding: new EdgeInsets.only(left: 8, right: 8),
+                        child: Container(
+                          width: 160,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                          child: TextField(
+                              controller: testCountController,
+                              onChanged: (text) {
+                                testCount = text;
+                                _checkInputIsValid();
+                              },
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.all(10.0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(4.0), //没什么卵效果
+                                  ))),
+                        ),
+                      ),
+                      Text(
+                        "组",
+                        style: TextStyle(color: Colors.white, fontSize: 32),
+                      ),
+                    ],
+                  ),)
+
                 ],
               ),
               Padding(
@@ -446,47 +487,41 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
                         bottom: ScreenUtils.calHeightInScreen(context, 24),
                       ),
                     ),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          "组间时长:",
+                          style: TextStyle(color: Colors.white, fontSize: 32),
+                        ),
+                        Padding(
+                          padding: new EdgeInsets.only(left: 8, right: 8),
+                          child: Container(
+                            width: 160,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                            child: TextField(
+                                controller: breakTimeController,
+                                onChanged: (text) {
+                                  breakTime = text;
+                                  _checkInputIsValid();
+                                },
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(10.0),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4.0), //没什么卵效果
+                                    ))),
+                          ),
+                        ),
+                        Text(
+                          "秒",
+                          style: TextStyle(color: Colors.white, fontSize: 32),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-              new Expanded(
-                child: Container(),
-              ),
-            ],
-          ),
-          Row(
-            children: <Widget>[
-              new Expanded(
-                child: Container(),
-              ),
-              Text(
-                "组间时长:",
-                style: TextStyle(color: Colors.white, fontSize: 32),
-              ),
-              Padding(
-                padding: new EdgeInsets.only(left: 8, right: 8),
-                child: Container(
-                  width: 160,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(4.0))),
-                  child: TextField(
-                      controller: breakTimeController,
-                      onChanged: (text) {
-                        breakTime = text;
-                        _checkInputIsValid();
-                      },
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(10.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.0), //没什么卵效果
-                          ))),
-                ),
-              ),
-              Text(
-                "秒",
-                style: TextStyle(color: Colors.white, fontSize: 32),
               ),
               new Expanded(
                 child: Container(),
@@ -518,6 +553,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
                               backStep!!,
                               backRate!!,
                               breakTime!!,
+                              testCount!!,
                               test!!);
                           Navigator.pop(context);
                         } else {
