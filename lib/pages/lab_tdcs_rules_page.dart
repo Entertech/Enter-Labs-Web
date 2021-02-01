@@ -76,10 +76,9 @@ class LabRulesWidget extends StatelessWidget {
                   top: ScreenUtils.calHeightInScreen(context, 30),),
               child: Container(
                 width: 750,
-                height: 142,
                 child: Text(
                   rules!!,
-                  style: TextStyle(color: Colors.white, fontSize: 24),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),
