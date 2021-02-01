@@ -3,7 +3,7 @@ version: '3.7'
 services:
 
   enterlab:
-    image: registry.cn-shanghai.aliyuncs.com/affectivecloud/enterlabs:1.1.0
+    image: {{REGISTRY}}/enterlabs:1.1.0
     build:
       context: .
     ports: 
