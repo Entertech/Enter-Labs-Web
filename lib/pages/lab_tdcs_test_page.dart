@@ -83,7 +83,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   late var alreadyShowLetterCount = 0;
   late Timer showTextTimer;
   late Timer hideTextTimer;
-  late int _textShowTime = 1000;
+  late int _textShowTime = 3000;
   late int _textHideTime = 0;
   late int _textTotalCount = 60;
   late int _backStep = 3;
@@ -480,14 +480,14 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
                 (breakCount * letters.length) + alreadyShowLetterCount - 1]
                     .userResult = "TRUE";
                 setState(() {
-                  clickResultColor = Colors.red;
+                  clickResultColor = Colors.green;
                 });
               } else {
                 showLetterEventList[
                 (breakCount * letters.length) + alreadyShowLetterCount - 1]
                     .userResult = "FALSE";
                 setState(() {
-                  clickResultColor = Colors.green;
+                  clickResultColor = Colors.red;
                 });
               }
             } else {
@@ -495,7 +495,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
               (breakCount * letters.length) + alreadyShowLetterCount - 1]
                   .userResult = "FALSE";
               setState(() {
-                clickResultColor = Colors.green;
+                clickResultColor = Colors.red;
               });
             }
           }

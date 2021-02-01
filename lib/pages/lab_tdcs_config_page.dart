@@ -97,7 +97,7 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
     backRate = preferences.getString("backRate_${test?.testType}");
     breakTime = preferences.getString("breakTime_${test?.testType}");
     if (textShowTime == null || textHideTime == null) {
-      textShowTime = "1000";
+      textShowTime = "3000";
       textHideTime = "0";
       textTotalCount = "60";
       letters = "A,B,C,D,E,F,G,H,I,J,K,L";
