@@ -58,11 +58,11 @@ class LetterShowEvent {
   int? actionTime;
   String? action = "";
   String? userResult;
-  String? rightResult;
+  String? isBack;
 
   @override
   String toString() {
-    return 'LetterShowEvent{letter: $letter, letterAppearTime: $letterAppearTime, actionTime: $actionTime, action: $action, userResult: $userResult, rightResult: $rightResult}';
+    return 'LetterShowEvent{userResult: $userResult}';
   }
 }
 
@@ -285,6 +285,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     row.add("letter");
     row.add("action");
     row.add("user_result");
+    row.add("is_back");
     row.add("appear_time");
     row.add("action_time");
     row.add("reaction_time");
@@ -295,6 +296,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       row.add(showLetterEventList[i].letter);
       row.add(showLetterEventList[i].action);
       row.add(showLetterEventList[i].userResult);
+      row.add(showLetterEventList[i].isBack);
       row.add(showLetterEventList[i].letterAppearTime);
       row.add(showLetterEventList[i].actionTime);
       var reactionTime;
@@ -453,10 +455,18 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
             clickResultColor = Colors.grey;
             LetterShowEvent letterShowEvent = new LetterShowEvent();
             letterShowEvent.letter = showLetter;
-            letterShowEvent.rightResult = "TRUE_0";
             letterShowEvent.userResult = "TRUE_0";
             letterShowEvent.letterAppearTime =
                 DateTime.now().millisecondsSinceEpoch;
+            if(alreadyShowLetterCount >_backStep){
+              if(showLetter == letters[alreadyShowLetterCount - 1 - _backStep]){
+                letterShowEvent.isBack = "TRUE";
+              }else{
+                letterShowEvent.isBack = "FALSE";
+              }
+            }else{
+              letterShowEvent.isBack = "FALSE";
+            }
             showLetterEventList.add(letterShowEvent);
           }
         } else {
