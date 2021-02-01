@@ -73,7 +73,7 @@ class LabRulesWidget extends StatelessWidget {
 
             Padding(
               padding: new EdgeInsets.only(
-                  top: ScreenUtils.calHeightInScreen(context, 70),),
+                  top: ScreenUtils.calHeightInScreen(context, 30),),
               child: Container(
                 width: 750,
                 height: 142,

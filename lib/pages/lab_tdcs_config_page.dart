@@ -366,45 +366,40 @@ class _LabConfigPageContentState extends State<LabConfigPageContentWidget> {
                 ),
                 child: Column(
                   children: [
-                    Padding(
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            "字母序列:",
-                            style: TextStyle(color: Colors.white, fontSize: 32),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          "字母序列:",
+                          style: TextStyle(color: Colors.white, fontSize: 32),
+                        ),
+                        Padding(
+                          padding: new EdgeInsets.only(left: 8, right: 8),
+                          child: Container(
+                            width: 160,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(4.0))),
+                            child: TextField(
+                                controller: lettersController,
+                                onChanged: (text) {
+                                  letters = text;
+                                  _checkInputIsValid();
+                                },
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(10.0),
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(4.0), //没什么卵效果
+                                    ))),
                           ),
-                          Padding(
-                            padding: new EdgeInsets.only(left: 8, right: 8),
-                            child: Container(
-                              width: 160,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4.0))),
-                              child: TextField(
-                                  controller: lettersController,
-                                  onChanged: (text) {
-                                    letters = text;
-                                    _checkInputIsValid();
-                                  },
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.all(10.0),
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(4.0), //没什么卵效果
-                                      ))),
-                            ),
-                          ),
-                          Text(
-                            "",
-                            style: TextStyle(color: Colors.white, fontSize: 32),
-                          ),
-                        ],
-                      ),
-                      padding: new EdgeInsets.only(
-                        top: ScreenUtils.calHeightInScreen(context, 24),
-                      ),
+                        ),
+                        Text(
+                          "",
+                          style: TextStyle(color: Colors.white, fontSize: 32),
+                        ),
+                      ],
                     ),
                     Padding(
                       child: Row(
