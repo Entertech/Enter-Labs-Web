@@ -89,7 +89,20 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   late int _backStep = 3;
   late double _backRate = 0.25;
   late int _breakTime = 60;
-  late List<String> _sourceLetters = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+  late List<String> _sourceLetters = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L"
+  ];
   late String _testStartTime = "";
   late var isTestEnd = false;
   late String _user = "";
@@ -248,7 +261,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
 
   void _handleLetterEventList() {
     for (int i = 0; i < showLetterEventList.length - 1; i++) {
-      if(showLetterEventList[i].action == ""){
+      if (showLetterEventList[i].action == "") {
         showLetterEventList[i].userResult = "OVERTIME";
       }
     }
@@ -470,33 +483,48 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
                     (breakCount * letters.length) + alreadyShowLetterCount - 1]
                 .actionTime = DateTime.now().millisecondsSinceEpoch;
             if (alreadyShowLetterCount > _backStep) {
-              if (letters[alreadyShowLetterCount - 1 - _backStep] == showLetter &&
+              if (letters[alreadyShowLetterCount - 1 - _backStep] ==
+                          showLetter &&
                       (event.data.keyLabel == "m" ||
                           event.data.keyLabel == "M") ||
-                  letters[alreadyShowLetterCount - 1 - _backStep] != showLetter &&
+                  letters[alreadyShowLetterCount - 1 - _backStep] !=
+                          showLetter &&
                       (event.data.keyLabel == "n" ||
                           event.data.keyLabel == "N")) {
-                showLetterEventList[
-                (breakCount * letters.length) + alreadyShowLetterCount - 1]
+                showLetterEventList[(breakCount * letters.length) +
+                        alreadyShowLetterCount -
+                        1]
                     .userResult = "TRUE";
                 setState(() {
                   clickResultColor = Colors.green;
                 });
               } else {
-                showLetterEventList[
-                (breakCount * letters.length) + alreadyShowLetterCount - 1]
+                showLetterEventList[(breakCount * letters.length) +
+                        alreadyShowLetterCount -
+                        1]
                     .userResult = "FALSE";
                 setState(() {
                   clickResultColor = Colors.red;
                 });
               }
             } else {
-              showLetterEventList[
-              (breakCount * letters.length) + alreadyShowLetterCount - 1]
-                  .userResult = "FALSE";
-              setState(() {
-                clickResultColor = Colors.red;
-              });
+              if ((event.data.keyLabel == "m" || event.data.keyLabel == "M")) {
+                showLetterEventList[(breakCount * letters.length) +
+                        alreadyShowLetterCount -
+                        1]
+                    .userResult = "FALSE";
+                setState(() {
+                  clickResultColor = Colors.red;
+                });
+              } else {
+                showLetterEventList[(breakCount * letters.length) +
+                        alreadyShowLetterCount -
+                        1]
+                    .userResult = "TRUE";
+                setState(() {
+                  clickResultColor = Colors.green;
+                });
+              }
             }
           }
         }
@@ -569,7 +597,6 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
                 ),
               ),
             ),
-
             Positioned(
               left: ScreenUtils.calWidthInScreen(context, 96),
               bottom: ScreenUtils.calHeightInScreen(context, 40),
