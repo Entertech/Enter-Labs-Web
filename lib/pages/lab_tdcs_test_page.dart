@@ -84,7 +84,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   late Timer showTextTimer;
   late Timer hideTextTimer;
   late int _textShowTime = 3000;
-  late int _textHideTime = 0;
+  late int _textHideTime = 500;
   late int _textTotalCount = 60;
   late int _backStep = 3;
   late double _backRate = 0.25;
@@ -188,7 +188,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     _initLetters();
     alreadyShowLetterCount = 0;
     isFlushPrepare = false;
-    _showText();
+    _hideText();
   }
 
   void _startText() {
@@ -196,22 +196,23 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
   }
 
   void _showText() {
+    alreadyShowLetterCount++;
+    if (alreadyShowLetterCount >= _textTotalCount) {
+      showTextTimer.cancel();
+      if (breakCount < 5) {
+        new Timer(new Duration(milliseconds: _textShowTime),
+            _startShowBreakCountText);
+      } else {
+        new Timer(new Duration(milliseconds: _textShowTime), _endTest);
+      }
+    } else {
+      showTextTimer =
+      new Timer(new Duration(milliseconds: _textShowTime), _hideText);
+    }
     setState(() {
       isPress = false;
       isShowLetter = true;
-      alreadyShowLetterCount++;
-      if (alreadyShowLetterCount >= _textTotalCount) {
-        showTextTimer.cancel();
-        if (breakCount < 5) {
-          new Timer(new Duration(milliseconds: _textShowTime),
-              _startShowBreakCountText);
-        } else {
-          new Timer(new Duration(milliseconds: _textShowTime), _endTest);
-        }
-      } else {
-        showTextTimer =
-            new Timer(new Duration(milliseconds: _textShowTime), _showText);
-      }
+
     });
   }
 
@@ -461,6 +462,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
             showLetterEventList.add(letterShowEvent);
           }
         } else {
+          clickResultColor = Colors.transparent;
           showLetter = "";
         }
       }
