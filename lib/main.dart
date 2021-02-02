@@ -8,6 +8,7 @@ import 'package:enterlabs/pages/lab_tdcs_test_page.dart';
 import 'package:enterlabs/pages/lab_test_page.dart';
 import 'package:enterlabs/pages/user_info_page.dart';
 import 'package:enterlabs/utils/RandomLettersGenUtil.dart';
+import 'package:enterlabs/utils/VersionUtil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -108,95 +109,112 @@ class HomePage extends StatelessWidget {
             // Center is a layout widget. It takes a single child and positions it
             // in the middle of the parent.
             child: new Center(
-      child: new Container(
-          child: new Row(
-        children: <Widget>[
-          new Expanded(child: Container()),
-          new Column(
-            children: <Widget>[
-              Padding(
-                child: new Text(
-                  "实验选择",
-                  style: new TextStyle(fontSize: 56),
-                ),
-                padding: new EdgeInsets.only(
-                    bottom: ScreenUtils.calHeightInScreen(context, 96),
-                    top: ScreenUtils.calHeightInScreen(context, 48)),
-              ),
-              new Row(
-                children: <Widget>[
-                  new SelectLabWidget(
-                    labBigName: "AX-CPT",
-                    labName: "注意力实验",
-                    labBigNameTextSize: 48,
-                    onButtonPress: () {
-                      Navigator.pushNamed(context, "/AX-CPT");
+      child: new ConstrainedBox(
+        constraints: BoxConstraints.expand(),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            new Container(
+                child: new Row(
+              children: <Widget>[
+                new Expanded(child: Container()),
+                new Column(
+                  children: <Widget>[
+                    Padding(
+                      child: new Text(
+                        "实验选择",
+                        style: new TextStyle(fontSize: 56),
+                      ),
+                      padding: new EdgeInsets.only(
+                          bottom: ScreenUtils.calHeightInScreen(context, 96),
+                          top: ScreenUtils.calHeightInScreen(context, 48)),
+                    ),
+                    new Row(
+                      children: <Widget>[
+                        new SelectLabWidget(
+                          labBigName: "AX-CPT",
+                          labName: "注意力实验",
+                          labBigNameTextSize: 48,
+                          onButtonPress: () {
+                            Navigator.pushNamed(context, "/AX-CPT");
 //                      Navigator.push(
 //                        context,
 //                        new MaterialPageRoute(
 //                          settings: RouteSettings(name: "/AX-CPT"),
 //                            builder: (context) => new LabStartPage()),
 //                      );
-                    },
-                  ),
-                  Padding(
-                      padding: new EdgeInsets.only(
-                          left: ScreenUtils.calWidthInScreen(context, 48)),
-                      child: new SelectLabWidget(
-                        labName: "听觉CPT实验",
-                        labBigName: "Auditory-CPT",
-                        labBigNameTextSize: 24,
-                        onButtonPress: () {
-                          Navigator.pushNamed(context, "/Auditory-CPT");
-                        },
-                      )),
-                  Padding(
-                      padding: new EdgeInsets.only(
-                          left: ScreenUtils.calWidthInScreen(context, 48)),
-                      child: new SelectLabWidget(
-                        labBigName: "tDCS-3-back",
-                        labName: "tDCS实验",
-                        labBigNameTextSize: 24,
-                        onButtonPress: () {
-                          Navigator.pushNamed(context, "/tDCS-3-back");
-                        },
-                      ))
-                ],
-              ),
-              Padding(
-                padding: new EdgeInsets.only(
-                    top: ScreenUtils.calHeightInScreen(context, 48)),
-                child: new Row(
-                  children: <Widget>[
-                    new SelectLabWidget(
-                      labName: "未开放",
-                      labBigName: "AX-CPT",
-                      labBigNameTextSize: 48,
+                          },
+                        ),
+                        Padding(
+                            padding: new EdgeInsets.only(
+                                left:
+                                    ScreenUtils.calWidthInScreen(context, 48)),
+                            child: new SelectLabWidget(
+                              labName: "听觉CPT实验",
+                              labBigName: "Auditory-CPT",
+                              labBigNameTextSize: 24,
+                              onButtonPress: () {
+                                Navigator.pushNamed(context, "/Auditory-CPT");
+                              },
+                            )),
+                        Padding(
+                            padding: new EdgeInsets.only(
+                                left:
+                                    ScreenUtils.calWidthInScreen(context, 48)),
+                            child: new SelectLabWidget(
+                              labBigName: "tDCS-3-back",
+                              labName: "tDCS实验",
+                              labBigNameTextSize: 24,
+                              onButtonPress: () {
+                                Navigator.pushNamed(context, "/tDCS-3-back");
+                              },
+                            ))
+                      ],
                     ),
                     Padding(
-                        padding: new EdgeInsets.only(
-                            left: ScreenUtils.calWidthInScreen(context, 48)),
-                        child: new SelectLabWidget(
-                          labName: "未开放",
-                          labBigName: "AX-CPT",
-                          labBigNameTextSize: 48,
-                        )),
-                    Padding(
-                        padding: new EdgeInsets.only(
-                            left: ScreenUtils.calWidthInScreen(context, 48)),
-                        child: new SelectLabWidget(
-                          labName: "未开放",
-                          labBigName: "AX-CPT",
-                          labBigNameTextSize: 48,
-                        ))
+                      padding: new EdgeInsets.only(
+                          top: ScreenUtils.calHeightInScreen(context, 48)),
+                      child: new Row(
+                        children: <Widget>[
+                          new SelectLabWidget(
+                            labName: "未开放",
+                            labBigName: "AX-CPT",
+                            labBigNameTextSize: 48,
+                          ),
+                          Padding(
+                              padding: new EdgeInsets.only(
+                                  left: ScreenUtils.calWidthInScreen(
+                                      context, 48)),
+                              child: new SelectLabWidget(
+                                labName: "未开放",
+                                labBigName: "AX-CPT",
+                                labBigNameTextSize: 48,
+                              )),
+                          Padding(
+                              padding: new EdgeInsets.only(
+                                  left: ScreenUtils.calWidthInScreen(
+                                      context, 48)),
+                              child: new SelectLabWidget(
+                                labName: "未开放",
+                                labBigName: "AX-CPT",
+                                labBigNameTextSize: 48,
+                              ))
+                        ],
+                      ),
+                    )
                   ],
                 ),
-              )
-            ],
-          ),
-          new Expanded(child: Container())
-        ],
-      )),
+                new Expanded(child: Container())
+              ],
+            )),
+            Positioned(
+                left: ScreenUtils.calWidthInScreen(context, 16),
+                bottom: ScreenUtils.calHeightInScreen(context, 16),
+                child: Text("${VersionUtil.getVersion()}",
+                    style: TextStyle(color: Colors.black, fontSize: 16)))
+          ],
+        ),
+      ),
     )) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
