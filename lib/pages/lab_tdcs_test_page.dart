@@ -204,7 +204,7 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
     alreadyShowLetterCount++;
     if (alreadyShowLetterCount >= _textTotalCount) {
       showTextTimer.cancel();
-      if (breakCount < _testCount-1) {
+      if (breakCount < _testCount - 1) {
         new Timer(new Duration(milliseconds: _textShowTime),
             _startShowBreakCountText);
       } else {
@@ -212,12 +212,11 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       }
     } else {
       showTextTimer =
-      new Timer(new Duration(milliseconds: _textShowTime), _hideText);
+          new Timer(new Duration(milliseconds: _textShowTime), _hideText);
     }
     setState(() {
       isPress = false;
       isShowLetter = true;
-
     });
   }
 
@@ -312,6 +311,63 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
       row.add(reactionTime);
       rows.add(row);
     }
+
+    rows.add(<dynamic>[]);
+
+    late var correctCount = 0;
+    late var hitCount = 0;
+    late var falseAlarmCount = 0;
+    late var reactionTimeNotNullCount = 0;
+    late int reactionTimeSum = 0;
+    for (int i = 0; i < showLetterEventList.length; i++) {
+      if (showLetterEventList[i].userResult == "TRUE") {
+        correctCount++;
+      }
+      if (showLetterEventList[i].userResult == "TRUE" &&
+          showLetterEventList[i].isBack == "TRUE") {
+        hitCount++;
+      }
+      if ((showLetterEventList[i].action == "m" ||
+              showLetterEventList[i].action == "M") &&
+          showLetterEventList[i].isBack == "FALSE") {
+        falseAlarmCount++;
+      }
+      if (showLetterEventList[i].actionTime != null &&
+          showLetterEventList[i].actionTime != 0) {
+        reactionTimeNotNullCount++;
+        reactionTimeSum = reactionTimeSum +
+            (showLetterEventList[i].actionTime!! -
+                showLetterEventList[i].letterAppearTime!!);
+      }
+    }
+
+    var correctRate =
+        (correctCount * 1.0 / showLetterEventList.length * 1000).toInt() / 1000;
+    var hitRate =
+        (hitCount * 1.0 / (showLetterEventList.length * _backRate) * 1000)
+                .toInt() /
+            1000;
+    var falseAlarmRate = (falseAlarmCount *
+                1.0 /
+                (showLetterEventList.length * (1 - _backRate)) *
+                1000)
+            .toInt() /
+        1000;
+    var avgReactionTime =
+        (reactionTimeSum * 1.0 / reactionTimeNotNullCount * 1000).toInt() /
+            1000;
+    List<dynamic> statistics = [];
+    statistics.add("ACC回答准确率");
+    statistics.add("命中率");
+    statistics.add("误判率");
+    statistics.add("平均反应时间");
+    rows.add(statistics);
+    List<dynamic> statisticsContent = [];
+    statisticsContent.add(correctRate);
+    statisticsContent.add(hitRate);
+    statisticsContent.add(falseAlarmRate);
+    statisticsContent.add(avgReactionTime);
+    rows.add(statisticsContent);
     return const ListToCsvConverter().convert(rows);
   }
 
@@ -463,13 +519,14 @@ class _LabTestPageContentWidgetState extends State<LabTestPageContentWidget> {
             letterShowEvent.userResult = "TRUE_0";
             letterShowEvent.letterAppearTime =
                 DateTime.now().millisecondsSinceEpoch;
-            if(alreadyShowLetterCount >_backStep){
-              if(showLetter == letters[alreadyShowLetterCount - 1 - _backStep]){
+            if (alreadyShowLetterCount > _backStep) {
+              if (showLetter ==
+                  letters[alreadyShowLetterCount - 1 - _backStep]) {
                 letterShowEvent.isBack = "TRUE";
-              }else{
+              } else {
                 letterShowEvent.isBack = "FALSE";
               }
-            }else{
+            } else {
               letterShowEvent.isBack = "FALSE";
             }
             showLetterEventList.add(letterShowEvent);
